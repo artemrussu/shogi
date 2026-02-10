@@ -62,15 +62,15 @@ public class Board {
 		setPiece(new Coordinates(File.E, 2), new Pawn(Color.BLACK, new Coordinates(File.E, 2)));
 		setPiece(new Coordinates(File.E, 8), new Pawn(Color.BLACK, new Coordinates(File.E, 8)));
 		
-		setPiece(new Coordinates(File.E, 3), new King(Color.WHITE, new Coordinates(File.E, 3)));
-		setPiece(new Coordinates(File.E, 4), new King(Color.WHITE, new Coordinates(File.E, 4)));
-		setPiece(new Coordinates(File.E, 6), new King(Color.WHITE, new Coordinates(File.E, 6)));
-		setPiece(new Coordinates(File.E, 7), new King(Color.WHITE, new Coordinates(File.E, 7)));
+		setPiece(new Coordinates(File.E, 3), new Pawn(Color.WHITE, new Coordinates(File.E, 3)));
+		setPiece(new Coordinates(File.E, 4), new Pawn(Color.WHITE, new Coordinates(File.E, 4)));
+		setPiece(new Coordinates(File.E, 6), new Pawn(Color.WHITE, new Coordinates(File.E, 6)));
+		setPiece(new Coordinates(File.E, 7), new Pawn(Color.WHITE, new Coordinates(File.E, 7)));
 		
-		setPiece(new Coordinates(File.C, 5), new King(Color.WHITE, new Coordinates(File.C, 5)));
-		setPiece(new Coordinates(File.D, 5), new King(Color.WHITE, new Coordinates(File.D, 5)));
-		setPiece(new Coordinates(File.F, 5), new King(Color.WHITE, new Coordinates(File.F, 5)));
-		setPiece(new Coordinates(File.G, 5), new King(Color.WHITE, new Coordinates(File.G, 5)));
+		setPiece(new Coordinates(File.C, 5), new Pawn(Color.WHITE, new Coordinates(File.C, 5)));
+		setPiece(new Coordinates(File.D, 5), new Pawn(Color.WHITE, new Coordinates(File.D, 5)));
+		setPiece(new Coordinates(File.F, 5), new Pawn(Color.WHITE, new Coordinates(File.F, 5)));
+		setPiece(new Coordinates(File.G, 5), new Pawn(Color.WHITE, new Coordinates(File.G, 5)));
 		
 		
 		// kings

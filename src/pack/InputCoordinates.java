@@ -16,7 +16,7 @@ public class InputCoordinates {
 			String line = scanner.nextLine();
 
 			if (line.length() != 2) {
-				System.out.println("Invalid");
+				System.out.println("Invalid (lenght)");
 				continue;
 			}
 
@@ -24,24 +24,24 @@ public class InputCoordinates {
 			char rankChar = line.charAt(1);
 
 			if (!Character.isLetter(fileChar)) {
-				System.out.println("Invalid");
+				System.out.println("Invalid (file)");
 				continue;
 			}
 
 			if (!Character.isDigit(rankChar)) {
-				System.out.println("Invalid");
+				System.out.println("Invalid (rank)");
 				continue;
 			}
 
 			int rank = Character.getNumericValue(rankChar);
 			if (rank < 1 || rank > 9) {
-				System.out.println("Invalid");
+				System.out.println("Invalid (rank)");
 				continue;
 			}
 
 			File file = File.fromChar(fileChar);
 			if (file == null) {
-				System.out.println("Invalid");
+				System.out.println("Invalid (file)");
 				continue;
 			}
 
@@ -54,13 +54,13 @@ public class InputCoordinates {
 			Coordinates coordinates = input();
 
 			if (board.isSquareEmpty(coordinates)) {
-				System.out.println("Invalid");
+				System.out.println("Square is empty");
 				continue;
 			}
 			
 			Piece piece = board.getPiece(coordinates);
 			if (piece.color != color) {
-				System.out.println("Invalid");
+				System.out.println("Wrong color");
 				continue;
 			}
 			
