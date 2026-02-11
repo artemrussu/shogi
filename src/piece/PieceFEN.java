@@ -5,7 +5,7 @@ import pack.Coordinates;
 
 public class PieceFEN {
 
-	public Piece fromFenChar(char fenChar, Coordinates coordinates) {
+	public Piece fromFENChar(char fenChar, Coordinates coordinates) {
         switch (fenChar) {
             case 'p':
                 return new Pawn(Color.BLACK, coordinates);
@@ -13,8 +13,8 @@ public class PieceFEN {
             case 'P':
                 return new Pawn(Color.WHITE, coordinates);
 
-            case 'k':
-                return new King(Color.BLACK, coordinates);
+            case 'K':
+                return new King(Color.WHITE, coordinates);
 
             default:
                 throw new RuntimeException("Unknown FEN char!");
