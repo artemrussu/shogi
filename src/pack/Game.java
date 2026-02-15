@@ -42,6 +42,7 @@ public class Game {
 			Piece piece = board.getPiece(fromCoordinates);
 			Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
 			
+			renderer.render(board, piece);
 			Coordinates toCoordinate = InputCoordinates.inputAvailableSquare(availableMoveSquares);
 			
 			// make move

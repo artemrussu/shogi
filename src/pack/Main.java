@@ -11,11 +11,7 @@ public class Main {
 		BoardConsoleRenderer renderer = new BoardConsoleRenderer();
 		renderer.render(board);
 		
-		/*
-		Board board = new Board();
-		board.setupInitialPosition();
 		Game game = new Game(board);
 		game.gameLoop();
-		*/
 	}
 }
