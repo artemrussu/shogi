@@ -9,7 +9,7 @@ public class Main {
 		
 		Board board = (new BoardFEN()).fromFEN("3ppp3/4p4/4P4/p3P3p/ppPPKPPpp/p3P3p/4P4/4p4/3ppp3");
 		BoardConsoleRenderer renderer = new BoardConsoleRenderer();
-		renderer.render(board);
+		// renderer.render(board);
 		
 		Game game = new Game(board);
 		game.gameLoop();
