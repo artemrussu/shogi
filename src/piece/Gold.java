@@ -2,12 +2,13 @@ package piece;
 
 import java.util.HashSet;
 import java.util.Set;
+
 import pack.Color;
 import pack.Coordinates;
 
-public class King extends Piece {
+public class Gold extends Piece {
 
-	public King(Color color, Coordinates coordinates) {
+	public Gold(Color color, Coordinates coordinates) {
 		super(color, coordinates);
 	}
 
@@ -27,4 +28,5 @@ public class King extends Piece {
 
 		return result;
 	}
+
 }

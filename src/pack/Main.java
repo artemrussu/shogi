@@ -6,11 +6,11 @@ import board.BoardFEN;
 
 public class Main {
 	public static void main(String[] args) {
-		
-		Board board = (new BoardFEN()).fromFEN("3ppp3/4p4/4P4/p3P3p/ppPPKPPpp/p3P3p/4P4/4p4/3ppp3");
-		BoardConsoleRenderer renderer = new BoardConsoleRenderer();
+
+		Board board = (new BoardFEN()).fromFEN("LNSGKGSNL/1R5B1/PPPPPPPPP/9/9/9/ppppppppp/1b5r1/lnsgkgsnl");
+		// BoardConsoleRenderer renderer = new BoardConsoleRenderer();
 		// renderer.render(board);
-		
+
 		Game game = new Game(board);
 		game.gameLoop();
 	}

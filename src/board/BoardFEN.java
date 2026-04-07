@@ -1,16 +1,14 @@
 package board;
 
-import pack.Color;
 import pack.Coordinates;
 import pack.File;
-import piece.Pawn;
 import piece.PieceFEN;
 
 public class BoardFEN {
 	private final PieceFEN pieceFEN = new PieceFEN();
 
 	public Board fromFEN(String fen) {
-		// 3ppp3/4p4/4P4/p3P3p/ppPPKPPpp/p3P3p/4P4/4p4/3ppp3 b
+		// 3ppp3/4p4/4P4/p3P3p/ppPPKPPpp/p3P3p/4P4/4p4/3ppp3 b (tafl)
 
 		Board board = new Board();
 

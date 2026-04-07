@@ -57,33 +57,33 @@ public class InputCoordinates {
 				System.out.println("Square is empty");
 				continue;
 			}
-			
+
 			Piece piece = board.getPiece(coordinates);
 			if (piece.color != color) {
 				System.out.println("Wrong color");
 				continue;
 			}
-			
+
 			Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
 			if (availableMoveSquares.size() == 0) {
 				System.out.println("Blocked piece");
 				continue;
 			}
-			
+
 			return coordinates;
 		}
 	}
-	
+
 	public static Coordinates inputAvailableSquare(Set<Coordinates> coordinates) {
 		while (true) {
 			System.out.println("Enter your move for selected piece");
 			Coordinates input = input();
-			
-			if (!coordinates.contains(input)){
+
+			if (!coordinates.contains(input)) {
 				System.out.println("Non-available square");
 				continue;
 			}
-			
+
 			return input;
 		}
 	}
