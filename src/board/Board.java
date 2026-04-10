@@ -3,48 +3,63 @@ package board;
 import java.util.HashMap;
 import pack.Coordinates;
 import piece.Piece;
-//import piece.Rook;
-//import piece.Silver;
-//import pack.Color;
-//import pack.File;
-//import piece.Pawn;
-//import piece.Bishop;
-//import piece.Gold;
-//import piece.King;
-//import piece.Knight;
-//import piece.Lance;
 
+/**
+ * Represents the game board. Manages piece placement, movement, and board state.
+ */
 public class Board {
-	HashMap<Coordinates, Piece> pieces = new HashMap<>();
+    /** Map containing all pieces currently on the board, keyed by their coordinates. */
+    HashMap<Coordinates, Piece> pieces = new HashMap<>();
 
-	public void setPiece(Coordinates coordinates, Piece piece) {
-		piece.coordinates = coordinates;
-		pieces.put(coordinates, piece);
-	}
+    /**
+     * Places a piece on the specified coordinates and updates the piece's internal position.
+     */
+    public void setPiece(Coordinates coordinates, Piece piece) {
+        piece.setCoordinates(coordinates);
+        pieces.put(coordinates, piece);
+    }
 
-	public void movePiece(Coordinates from, Coordinates to) {
-		Piece piece = getPiece(from);
+    /**
+     * Moves a piece from one coordinate to another, removing it from the original spot.
+     */
+    public void movePiece(Coordinates from, Coordinates to) {
+        Piece piece = getPiece(from);
 
-		removePiece(from);
-		setPiece(to, piece);
-	}
+        removePiece(from);
+        setPiece(to, piece);
+    }
 
-	public void removePiece(Coordinates coordinates) {
-		pieces.remove(coordinates);
-	}
+    /**
+     * Removes the piece located at the given coordinates.
+     */
+    public void removePiece(Coordinates coordinates) {
+        pieces.remove(coordinates);
+    }
 
-	public static boolean isSquareDark(Coordinates coordinates) {
-		return (((coordinates.file.ordinal() + 1) + coordinates.rank) % 2) == 0;
-	}
+    /**
+     * Determines if a square should be colored as "dark" based on its coordinates.
+     */
+    public static boolean isSquareDark(Coordinates coordinates) {
+        return (((coordinates.file.ordinal() + 1) + coordinates.rank) % 2) == 0;
+    }
 
-	public boolean isSquareEmpty(Coordinates coordinates) {
-		return !pieces.containsKey(coordinates);
-	}
+    /**
+     * Checks if there is no piece at the given coordinates.
+     */
+    public boolean isSquareEmpty(Coordinates coordinates) {
+        return !pieces.containsKey(coordinates);
+    }
 
-	public Piece getPiece(Coordinates coordinates) {
-		return pieces.get(coordinates);
-	}
+    /**
+     * Returns the piece at the given coordinates, or null if the square is empty.
+     */
+    public Piece getPiece(Coordinates coordinates) {
+        return pieces.get(coordinates);
+    }
 
+    /**
+     * Sets up the board with the standard starting configuration of pieces.
+     */
 	public void setupInitialPosition() {
 
 //		for (File file : File.values()) {

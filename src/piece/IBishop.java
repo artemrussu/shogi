@@ -3,27 +3,35 @@ package piece;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Interface defining diagonal movement patterns.
+ * Can be reused by any piece that has bishop-like movement capabilities.
+ */
 public interface IBishop {
-	default Set<CoordinatesShift> getBishopMoves() {
-		Set<CoordinatesShift> result = new HashSet<>();
+    
+    /**
+     * Generates a set of relative shifts for all four diagonal directions.
+     * Covers distances from 1 to 8 squares.
+     */
+    default Set<CoordinatesShift> getBishopMoves() {
+        Set<CoordinatesShift> result = new HashSet<>();
 
-		// bottom-left to top-right
-		for (int i = -8; i <= 8; i++) {
-			if (i == 0)
-				continue;
+        // bottom-left to top-right (diagonal 1)
+        for (int i = -8; i <= 8; i++) {
+            if (i == 0)
+                continue;
 
-			result.add(new CoordinatesShift(i, i));
-		}
+            result.add(new CoordinatesShift(i, i));
+        }
 
-		// top-left to bottom-right
-		for (int i = -8; i <= 8; i++) {
-			if (i == 0)
-				continue;
+        // top-left to bottom-right (diagonal 2)
+        for (int i = -8; i <= 8; i++) {
+            if (i == 0)
+                continue;
 
-			result.add(new CoordinatesShift(i, -i));
-		}
+            result.add(new CoordinatesShift(i, -i));
+        }
 
-		return result;
-	}
-
+        return result;
+    }
 }

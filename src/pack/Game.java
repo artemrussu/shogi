@@ -1,54 +1,55 @@
 package pack;
 
 import java.util.Set;
-
 import board.Board;
-import board.BoardConsoleRenderer;
 import board.BoardConsoleRenderer;
 import piece.Piece;
 
+/**
+ * Controls the game logic and flow. 
+ * Manages the game loop, turn transitions, and user interaction.
+ */
 public class Game {
 
-	private final Board board;
+    private final Board board;
+    private BoardConsoleRenderer renderer = new BoardConsoleRenderer();
 
-	private BoardConsoleRenderer renderer = new BoardConsoleRenderer();
+    public Game(Board board) {
+        this.board = board;
+    }
 
-	public Game(Board board) {
-		this.board = board;
-	}
+    /**
+     * Starts and maintains the main game loop.
+     * Handles rendering, input validation, and piece movement until the game ends.
+     */
+    public void gameLoop() {
+        boolean isWhiteToMove = true; 
 
-	public void gameLoop() {
-		boolean isWhiteToMove = true; // in tafl games black's turn first (now its white)
+        while (true) {
+            // render
+            renderer.render(board);
 
-		while (true) {
-			/*
-			 * render input make move pass move
-			 */
+            if (isWhiteToMove) {
+                System.out.println("White to move");
+            } else {
+                System.out.println("Black to move");
+            }
 
-			// render
-			renderer.render(board);
+            // input
+            Coordinates fromCoordinates = InputCoordinates
+                    .inputPieceCoordinatesForColor(isWhiteToMove ? Color.SENTE : Color.GOTE, board);
 
-			if (isWhiteToMove) {
-				System.out.println("White to move");
-			} else {
-				System.out.println("Black to move");
-			}
+            Piece piece = board.getPiece(fromCoordinates);
+            Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
 
-			// input
-			Coordinates fromCoordinates = InputCoordinates
-					.inputPieceCoordinatesForColor(isWhiteToMove ? Color.SENTE : Color.GOTE, board);
+            renderer.render(board, piece);
+            Coordinates toCoordinate = InputCoordinates.inputAvailableSquare(availableMoveSquares);
 
-			Piece piece = board.getPiece(fromCoordinates);
-			Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
+            // make move
+            board.movePiece(fromCoordinates, toCoordinate);
 
-			renderer.render(board, piece);
-			Coordinates toCoordinate = InputCoordinates.inputAvailableSquare(availableMoveSquares);
-
-			// make move
-			board.movePiece(fromCoordinates, toCoordinate);
-
-			// pass move (color change)
-			isWhiteToMove = !isWhiteToMove;
-		}
-	}
+            // pass move
+            isWhiteToMove = !isWhiteToMove;
+        }
+    }
 }
