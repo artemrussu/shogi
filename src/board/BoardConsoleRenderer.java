@@ -76,6 +76,7 @@ public class BoardConsoleRenderer {
             case "Gold": return "G";
             case "Bishop": return "B";
             case "Rook": return "R";
+            case "Horse": return "H";
             default: return piece.getClass().getSimpleName();
         }
     }

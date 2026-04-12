@@ -17,23 +17,19 @@ public class Pawn extends Piece {
 
     /**
      * Returns the set of relative shifts for the Pawn.
-     * Note: Current implementation uses a 3x3 grid placeholder.
      */
     @Override
     protected Set<CoordinatesShift> getPieceMoves() {
-        Set<CoordinatesShift> result = new HashSet<>();
-
-        for (int fileShift = -1; fileShift <= 1; fileShift++) {
-            for (int rankShift = -1; rankShift <= 1; rankShift++) {
-                if ((fileShift == 0) && (rankShift == 0)) {
-                    continue;
-                }
-
-                result.add(new CoordinatesShift(fileShift, rankShift));
-            }
+            
+        		Set<CoordinatesShift> result = new HashSet<>();
+        		
+        		if (getColor() == Color.SENTE) {
+        			result.add(new CoordinatesShift(0, -1));
+        		} else {
+        			result.add(new CoordinatesShift(0, 1));
+        		}
+        		
+        		return result;
         }
-
-        return result;
-    }
 
 }
