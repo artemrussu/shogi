@@ -15,7 +15,7 @@ public class Main {
 
         Board board = (new BoardFEN()).fromFEN("LNSGKGSNL/1R5B1/PPPPPPPPP/9/9/9/ppppppppp/1b5r1/lnsgkgsnl");
 
-        Game game = new Game(board);
+        GraphicGame game = new GraphicGame(board);
         game.gameLoop();
     }
 }

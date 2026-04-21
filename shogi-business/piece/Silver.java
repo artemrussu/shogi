@@ -22,12 +22,19 @@ public class Silver extends Piece {
 	 */
 	@Override
 	protected Set<CoordinatesShift> getPieceMoves() {
-		return new HashSet<>(Arrays.asList(
-				new CoordinatesShift(0, 1),
-				new CoordinatesShift(1, 1),
-				new CoordinatesShift(1, -1),
-				new CoordinatesShift(-1, -1),
-				new CoordinatesShift(-1, 1)));
-	}
+		Set<CoordinatesShift> moves = new HashSet<>();
 
+	    moves.add(new CoordinatesShift(1, 1));
+	    moves.add(new CoordinatesShift(1, -1));
+	    moves.add(new CoordinatesShift(-1, -1));
+	    moves.add(new CoordinatesShift(-1, 1));
+
+	    if (getColor() == Color.SENTE) {
+	        moves.add(new CoordinatesShift(0, -1));
+	    } else {
+	        moves.add(new CoordinatesShift(0, 1));
+	    }
+
+	    return moves;
+	}
 }

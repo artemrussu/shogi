@@ -9,12 +9,12 @@ import piece.Piece;
  * Controls the game logic and flow. 
  * Manages the game loop, turn transitions, and user interaction.
  */
-public class Game {
+public class ConsoleGame {
 
     private final Board board;
     private BoardConsoleRenderer renderer = new BoardConsoleRenderer();
 
-    public Game(Board board) {
+    public ConsoleGame(Board board) {
         this.board = board;
     }
 
