@@ -3,104 +3,139 @@ package core;
 import java.util.Scanner;
 import java.util.Set;
 
+import core.factory.BoardFEN;
 import model.board.Board;
 import model.piece.Piece;
+import model.piece.impl.King;
+import view.console.ConsoleRenderer;
 
 /**
- * Utility class for handling user input via the console.
- * Validates coordinate strings and move availability.
+ * Utility class for handling user input via the console. Validates coordinate
+ * strings and move availability.
  */
 public class InputCoordinates {
 
-    private static final Scanner scanner = new Scanner(System.in);
+	private static final Scanner scanner = new Scanner(System.in);
 
-    /**
-     * Reads and validates a basic coordinate pair (e.g., "A1") from the console.
-     * Continues prompting the user until a valid format is provided.
-     */
-    public static Coordinates input() {
-        while (true) {
-            System.out.println("Enter coordinates:");
-            String line = scanner.nextLine();
+	/**
+	 * Reads and validates a basic coordinate pair (e.g., "A1") from the console.
+	 * Continues prompting the user until a valid format is provided.
+	 */
+	public static Coordinates input() {
+		while (true) {
+			System.out.println("Enter coordinates:");
+			String line = scanner.nextLine();
 
-            if (line.length() != 2) {
-                System.out.println("Invalid (length)");
-                continue;
-            }
+			if (line.length() != 2) {
+				System.out.println("Invalid (length)");
+				continue;
+			}
 
-            char fileChar = line.charAt(0);
-            char rankChar = line.charAt(1);
+			char fileChar = line.charAt(0);
+			char rankChar = line.charAt(1);
 
-            if (!Character.isLetter(fileChar)) {
-                System.out.println("Invalid (file)");
-                continue;
-            }
+			if (!Character.isLetter(fileChar)) {
+				System.out.println("Invalid (file)");
+				continue;
+			}
 
-            if (!Character.isDigit(rankChar)) {
-                System.out.println("Invalid (rank)");
-                continue;
-            }
+			if (!Character.isDigit(rankChar)) {
+				System.out.println("Invalid (rank)");
+				continue;
+			}
 
-            int rank = Character.getNumericValue(rankChar);
-            if (rank < 1 || rank > 9) {
-                System.out.println("Invalid (rank)");
-                continue;
-            }
+			int rank = Character.getNumericValue(rankChar);
+			if (rank < 1 || rank > 9) {
+				System.out.println("Invalid (rank)");
+				continue;
+			}
 
-            File file = File.fromChar(fileChar);
-            if (file == null) {
-                System.out.println("Invalid (file)");
-                continue;
-            }
+			File file = File.fromChar(fileChar);
+			if (file == null) {
+				System.out.println("Invalid (file)");
+				continue;
+			}
 
-            return new Coordinates(file, rank);
-        }
-    }
+			return new Coordinates(file, rank);
+		}
+	}
 
-    /**
-     * Prompts for a coordinate and ensures it contains a piece of the specified color.
-     * Also checks if the selected piece has at least one legal move.
-     */
-    public static Coordinates inputPieceCoordinatesForColor(Color color, Board board) {
-        while (true) {
-            Coordinates coordinates = input();
+	/**
+	 * Prompts for a coordinate and ensures it contains a piece of the specified
+	 * color. Also checks if the selected piece has at least one legal move.
+	 */
+	public static Coordinates inputPieceCoordinatesForColor(Color color, Board board) {
+		while (true) {
+			Coordinates coordinates = input();
 
-            if (board.isSquareEmpty(coordinates)) {
-                System.out.println("Square is empty");
-                continue;
-            }
+			if (board.isSquareEmpty(coordinates)) {
+				System.out.println("Square is empty");
+				continue;
+			}
 
-            Piece piece = board.getPiece(coordinates);
-            
-            if (piece.getColor() != color) {
-                System.out.println("Wrong color");
-                continue;
-            }
+			Piece piece = board.getPiece(coordinates);
 
-            Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
-            if (availableMoveSquares.size() == 0) {
-                System.out.println("Blocked piece");
-                continue;
-            }
+			if (piece.getColor() != color) {
+				System.out.println("Wrong color");
+				continue;
+			}
 
-            return coordinates;
-        }
-    }
+			Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
+			if (availableMoveSquares.size() == 0) {
+				System.out.println("Blocked piece");
+				continue;
+			}
 
-    /**
-     * Prompts for a destination square and validates it against a set of allowed moves.
-     */
-    public static Coordinates inputAvailableSquare(Set<Coordinates> coordinates) {
-        while (true) {
-            System.out.println("Enter your move for selected piece");
-            Coordinates input = input();
+			return coordinates;
+		}
+	}
 
-            if (!coordinates.contains(input)) {
-                System.out.println("Non-available square");
-                continue;
-            }
+	/**
+	 * Prompts for a destination square and validates it against a set of allowed
+	 * moves.
+	 */
+	public static Coordinates inputAvailableSquare(Set<Coordinates> coordinates) {
+		while (true) {
+			System.out.println("Enter your move for selected piece");
+			Coordinates input = input();
 
-            return input;
-        }
-    }
+			if (!coordinates.contains(input)) {
+				System.out.println("Non-available square");
+				continue;
+			}
+
+			return input;
+		}
+	}
+
+	public static Move inputMove(Board board, Color color, ConsoleRenderer renderer) {
+		while (true) {
+			// input
+			Coordinates sourceCoordinates = InputCoordinates.inputPieceCoordinatesForColor(color, board);
+
+			Piece piece = board.getPiece(sourceCoordinates);
+			Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
+
+			renderer.render(board, piece);
+			Coordinates targetCoordinates = InputCoordinates.inputAvailableSquare(availableMoveSquares);
+
+			Move move = new Move(sourceCoordinates, targetCoordinates);
+
+			if (validateIfKingInCheckAfterMove(board, color, move)) {
+				System.out.println("Your king is under attack!");
+				continue;
+			}
+
+			return move;
+		}
+	}
+
+	private static boolean validateIfKingInCheckAfterMove(Board board, Color color, Move move) {
+		Board copy = (new BoardFEN()).copy(board);
+		copy.makeMove(move);
+
+		// we trust that there is king on the board
+		Piece king = copy.getPiecesByColor(color).stream().filter(piece -> piece instanceof King).findFirst().get();
+		return copy.isSquareAttackedByColor(king.getCoordinates(), color.opposite());
+	}
 }

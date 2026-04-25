@@ -7,6 +7,7 @@ import java.util.Set;
 
 import core.Color;
 import core.Coordinates;
+import core.Move;
 import model.piece.Piece;
 
 /**
@@ -15,55 +16,51 @@ import model.piece.Piece;
 public class Board {
     /** Map containing all pieces currently on the board, keyed by their coordinates. */
     HashMap<Coordinates, Piece> pieces = new HashMap<>();
+    
+    public List<Move> moves = new ArrayList<>();
+    public final String startingFen;
+    
+    public Board(String startingFen) {
+        this.startingFen = startingFen;
+    }
 
-    /**
-     * Places a piece on the specified coordinates and updates the piece's internal position.
-     */
+    
+    /***************************/
     public void setPiece(Coordinates coordinates, Piece piece) {
         piece.setCoordinates(coordinates);
         pieces.put(coordinates, piece);
     }
 
-    /**
-     * Moves a piece from one coordinate to another, removing it from the original spot.
-     */
-    public void movePiece(Coordinates from, Coordinates to) {
-        Piece piece = getPiece(from);
+    public void makeMove(Move move) {
+        Piece piece = getPiece(move.from);
 
-        removePiece(from);
-        setPiece(to, piece);
+        removePiece(move.from);
+        setPiece(move.to, piece);
+
+        moves.add(move);
     }
 
-    /**
-     * Removes the piece located at the given coordinates.
-     */
     public void removePiece(Coordinates coordinates) {
         pieces.remove(coordinates);
     }
+    /***************************/
 
-    /**
-     * Determines if a square should be colored as "dark" based on its coordinates.
-     */
+    
     public static boolean isSquareDark(Coordinates coordinates) {
         return (((coordinates.file.ordinal() + 1) + coordinates.rank) % 2) == 0;
     }
 
-    /**
-     * Checks if there is no piece at the given coordinates.
-     */
     public boolean isSquareEmpty(Coordinates coordinates) {
         return !pieces.containsKey(coordinates);
     }
 
-    /**
-     * Returns the piece at the given coordinates, or null if the square is empty.
-     */
     public Piece getPiece(Coordinates coordinates) {
         return pieces.get(coordinates);
     }
 
     /**
      * Sets up the board with the standard starting configuration of pieces.
+     * Configurated from BoardFEN. This version for debug only.
      */
 	public void setupInitialPosition() {
 
@@ -124,7 +121,7 @@ public class Board {
 		return false;
 	}
 
-	private List<Piece> getPiecesByColor(Color color) {
+	public List<Piece> getPiecesByColor(Color color) {
 		List<Piece> result = new ArrayList<>();
 		
 		for (Piece piece : pieces.values()) {
