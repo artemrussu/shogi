@@ -1,10 +1,7 @@
-package model.board;
+package core;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import core.Coordinates;
-import core.File;
 
 /**
  * Collection of static utility methods for board coordinate geometry.

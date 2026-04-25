@@ -2,10 +2,10 @@ package core.factory;
 
 import core.Color;
 import core.Coordinates;
-import model.piece.King;
 import model.piece.Piece;
 import model.piece.impl.Bishop;
 import model.piece.impl.Gold;
+import model.piece.impl.King;
 import model.piece.impl.Knight;
 import model.piece.impl.Lance;
 import model.piece.impl.Pawn;

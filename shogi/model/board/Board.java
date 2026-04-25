@@ -1,7 +1,11 @@
 package model.board;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
 
+import core.Color;
 import core.Coordinates;
 import model.piece.Piece;
 
@@ -104,6 +108,32 @@ public class Board {
 //		// kings
 //		setPiece(new Coordinates(File.E, 1), new King(Color.SENTE, new Coordinates(File.E, 1)));
 //		setPiece(new Coordinates(File.E, 9), new King(Color.GOTE, new Coordinates(File.E, 9)));
+	}
+
+	public boolean isSquareAttackedByColor(Coordinates coordinates, Color color) {
+		List<Piece> pieces = getPiecesByColor(color);
+		
+		for (Piece piece : pieces) {
+			Set<Coordinates> attackedSquares = piece.getAttackedSquares(this);
+			
+			if (attackedSquares.contains(coordinates)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	private List<Piece> getPiecesByColor(Color color) {
+		List<Piece> result = new ArrayList<>();
+		
+		for (Piece piece : pieces.values()) {
+			if (piece.getColor() == color) {
+				result.add(piece);
+			}
+		}
+		
+		return result;
 	}
 
 }
