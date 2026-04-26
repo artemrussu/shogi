@@ -1,7 +1,6 @@
 package view.gui.components;
 
 import java.util.Set;
-
 import core.Color;
 import core.Coordinates;
 import core.File;
@@ -9,13 +8,14 @@ import mdesl.graphics.SpriteBatch;
 import mdesl.graphics.Texture;
 import model.board.Board;
 import model.piece.Piece;
+import view.gui.SpriteUtil;
 
 public class BoardPanel extends UIComponent {
     private Board board;
     private Piece pieceToMove;
     
-    private final int TEXTURE_TILE_SIZE = 256; 
     private final int DISPLAY_TILE_SIZE = 75;
+    private final int FRAME_THICKNESS = 70;
 
     public BoardPanel(int x, int y, int width, int height, Board board) {
         super(x, y, width, height);
@@ -26,53 +26,65 @@ public class BoardPanel extends UIComponent {
         this.pieceToMove = piece;
     }
 
-    /**
-     * Converts raw mouse coordinates to board logic coordinates (file, rank).
-     * * @param mouseX Absolute X coordinate on the screen.
-     * @param mouseY Absolute Y coordinate on the screen.
-     * @return Coordinates on the board, or null if clicked outside.
-     */
+    @Override
+    protected void drawFrame(SpriteBatch batch, Texture sheet) {
+        // Explicitly define the frame tile coordinates from your sheet
+        int cornerCol = 1; int cornerRow = 2;
+        int straightCol = 2; int straightRow = 2;
+        int T = FRAME_THICKNESS;
+
+        // 1. Draw 4 Corners
+        SpriteUtil.drawSprite(batch, sheet, cornerCol, cornerRow, x, y, T, T, 0f);
+        SpriteUtil.drawSprite(batch, sheet, cornerCol, cornerRow, x + width - T, y, T, T, 90f);
+        SpriteUtil.drawSprite(batch, sheet, cornerCol, cornerRow, x + width - T, y + height - T, T, T, 180f);
+        SpriteUtil.drawSprite(batch, sheet, cornerCol, cornerRow, x, y + height - T, T, T, 270f);
+
+        // 2. Horizontal Edges - Explicitly use the frame sheet coordinates
+        for (int i = T; i < width - T; i += T) {
+            int drawW = Math.min(T, width - T - i);
+            SpriteUtil.drawSprite(batch, sheet, straightCol, straightRow, x + i, y, drawW, T, 0f);
+            SpriteUtil.drawSprite(batch, sheet, straightCol, straightRow, x + i, y + height - T, drawW, T, 180f);
+        }
+
+        // 3. Vertical Edges - Explicitly use the frame sheet coordinates
+        for (int j = T; j < height - T; j += T) {
+            int drawH = Math.min(T, height - T - j);
+            SpriteUtil.drawSprite(batch, sheet, straightCol, straightRow, x, y + j, T, drawH, 270f);
+            SpriteUtil.drawSprite(batch, sheet, straightCol, straightRow, x + width - T, y + j, T, drawH, 90f);
+        }
+    }
     public Coordinates getCoordinatesFromMouse(int mouseX, int mouseY) {
-        int fileIdx = (mouseX - this.x) / DISPLAY_TILE_SIZE;
-        int rankIdx = (mouseY - this.y) / DISPLAY_TILE_SIZE;
+        // Offset by FRAME_THICKNESS to skip the border
+        int fileIdx = (mouseX - this.x - FRAME_THICKNESS) / DISPLAY_TILE_SIZE;
+        int rankIdx = (mouseY - this.y - FRAME_THICKNESS) / DISPLAY_TILE_SIZE;
 
         if (fileIdx >= 0 && fileIdx < 9 && rankIdx >= 0 && rankIdx < 9) {
-            File file = File.values()[fileIdx];
-            int rank = 9 - rankIdx; 
-            return new Coordinates(file, rank);
+            return new Coordinates(File.values()[fileIdx], 9 - rankIdx);
         }
         return null;
     }
 
-    /**
-     * Renders the game board, highlights, and pieces.
-     */
     @Override
     public void render(SpriteBatch batch, Texture spriteSheet) {
         drawFrame(batch, spriteSheet);
 
         Set<Coordinates> availableMoveSquares = (pieceToMove != null) 
-            ? pieceToMove.getAvailableMoveSquares(board) 
-            : Set.of();
+            ? pieceToMove.getAvailableMoveSquares(board) : Set.of();
 
         for (int rank = 9; rank >= 1; rank--) {
             for (File file : File.values()) {
                 Coordinates coordinates = new Coordinates(file, rank);
-                boolean isHighlight = availableMoveSquares.contains(coordinates);
+                
+                // Offset the drawing area by FRAME_THICKNESS
+                int screenX = this.x + FRAME_THICKNESS + (file.ordinal() * DISPLAY_TILE_SIZE);
+                int screenY = this.y + FRAME_THICKNESS + ((9 - rank) * DISPLAY_TILE_SIZE);
 
-                // Use panel-relative coordinates instead of global offsets
-                int screenX = this.x + (file.ordinal() * DISPLAY_TILE_SIZE);
-                int screenY = this.y + ((9 - rank) * DISPLAY_TILE_SIZE);
+                SpriteUtil.drawSprite(batch, spriteSheet, 0, 0, screenX, screenY, DISPLAY_TILE_SIZE, DISPLAY_TILE_SIZE, 0f); 
 
-                // Draw background cell
-                drawSprite(batch, spriteSheet, 0, 0, screenX, screenY, 0f); 
-
-                // Draw move highlight if applicable
-                if (isHighlight) {
-                    drawSprite(batch, spriteSheet, 1, 0, screenX, screenY, 0f); 
+                if (availableMoveSquares.contains(coordinates)) {
+                    SpriteUtil.drawSprite(batch, spriteSheet, 1, 0, screenX, screenY, DISPLAY_TILE_SIZE, DISPLAY_TILE_SIZE, 0f); 
                 }
 
-                // Draw piece
                 if (!board.isSquareEmpty(coordinates)) {
                     drawPiece(batch, spriteSheet, board.getPiece(coordinates), screenX, screenY);
                 }
@@ -99,34 +111,10 @@ public class BoardPanel extends UIComponent {
         }
 
         float rotation = (piece.getColor() == Color.SENTE) ? 180f : 0f;
-        drawSprite(batch, spriteSheet, col, row, screenX, screenY, rotation);
-    }
-
-    /**
-     * Draws a specific sprite from the sheet using provided transformations.
-     */
-    private void drawSprite(SpriteBatch batch, Texture spriteSheet, int col, int row, int screenX, int screenY, float rotationDegrees) {
-        float srcX = col * TEXTURE_TILE_SIZE;
-        float srcY = row * TEXTURE_TILE_SIZE;
-        float srcWidth = TEXTURE_TILE_SIZE;
-        float srcHeight = TEXTURE_TILE_SIZE;
-
-        float u = srcX / spriteSheet.getWidth();
-        float v = srcY / spriteSheet.getHeight();
-        float u2 = (srcX + srcWidth) / spriteSheet.getWidth();
-        float v2 = (srcY + srcHeight) / spriteSheet.getHeight();
-
-        float rotationRadians = (float) Math.toRadians(rotationDegrees);
-
-        float originX = DISPLAY_TILE_SIZE / 2f;
-        float originY = DISPLAY_TILE_SIZE / 2f;
-
-        batch.draw(spriteSheet, 
-                   (float)screenX, (float)screenY, 
-                   (float)DISPLAY_TILE_SIZE, (float)DISPLAY_TILE_SIZE, 
-                   originX, originY, 
-                   rotationRadians, 
-                   u, v, u2, v2);
+        
+        // Use the static helper class instead of the local method
+        SpriteUtil.drawSprite(batch, spriteSheet, col, row, 
+                                screenX, screenY, DISPLAY_TILE_SIZE, DISPLAY_TILE_SIZE, rotation);
     }
 
     @Override

@@ -53,31 +53,35 @@ public class GraphicRender {
             }
             spriteSheet = new Texture(textureUrl); 
             
-            // UI LAYOUT CALCULATIONS
+         // UI LAYOUT CALCULATIONS
+         // UI LAYOUT CALCULATIONS
             int screenW = Display.getWidth();
             int screenH = Display.getHeight();
             
-            int boardSize = 9 * 75; // 675 pixels (board width/height)
+            int boardGridSize = 9 * 75; // 675
+            int frameThickness = 70;
+            // Total size including the frame on both sides (70 + 675 + 70)
+            int boardPanelSize = boardGridSize + (frameThickness * 2); 
+
+            // 1. Calculate X and Y FIRST
+            int boardX = (screenW - boardPanelSize) / 2; 
+            int boardY = (screenH - boardPanelSize) / 2; 
             
-            // Center the board on the screen
-            int boardX = (screenW - boardSize) / 2; 
-            int boardY = (screenH - boardSize) / 2; 
+            int sidePanelWidth = 500;
+            int sidePanelHeight = 950;
+            int panelY = 65;
             
-            int sidePanelWidth = 400;
-            int sidePanelHeight = screenH - 200;
-            int panelY = 100;
-            
-            // Instantiate UI panels
-            boardPanel = new BoardPanel(boardX, boardY, boardSize, boardSize, board);
-            leftPanel = new LeftPanel(50, panelY, sidePanelWidth, sidePanelHeight);
-            rightPanel = new RightPanel(screenW - sidePanelWidth - 50, panelY, sidePanelWidth, sidePanelHeight);
+            // 2. Instantiate UI panels SECOND
+            boardPanel = new BoardPanel(boardX, boardY, boardPanelSize, boardPanelSize, board);
+            leftPanel = new LeftPanel(30, panelY, sidePanelWidth, sidePanelHeight);
+            rightPanel = new RightPanel(screenW - sidePanelWidth - 30, panelY, sidePanelWidth, sidePanelHeight);
             
         } catch (LWJGLException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
-    }    
+    }
     
     /**
      * Translates mouse position to board coordinates.
@@ -111,6 +115,9 @@ public class GraphicRender {
         glClear(GL_COLOR_BUFFER_BIT);
         batch.begin();
 
+        // New background rendering call
+        drawBackground();
+
         // 1. Draw side panels
         if (leftPanel != null) leftPanel.render(batch, spriteSheet);
         if (rightPanel != null) rightPanel.render(batch, spriteSheet);
@@ -123,5 +130,33 @@ public class GraphicRender {
 
         batch.end();
         Display.update(); 
+    }
+
+    /**
+     * Draws the background sprite from the spritesheet scaled to the display size.
+     */
+    private void drawBackground() {
+        // The column and row of your background tile in the spritesheet
+        int backgroundCol = 3;
+        int backgroundRow = 2;
+
+        int screenWidth = Display.getWidth();
+        int screenHeight = Display.getHeight();
+        
+        // Define the size we want to draw each background tile (256x256)
+        int tileDrawSize = 256; 
+
+        // Loop through the screen width and height to tile the image
+        for (int x = 0; x < screenWidth; x += tileDrawSize) {
+            for (int y = 0; y < screenHeight; y += tileDrawSize) {
+                
+                // Draw the tile at the current position
+                SpriteUtil.drawSprite(batch, spriteSheet, 
+                                      backgroundCol, backgroundRow, 
+                                      x, y, 
+                                      tileDrawSize, tileDrawSize, 
+                                      0f);
+            }
+        }
     }
 }
