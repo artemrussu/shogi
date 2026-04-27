@@ -15,12 +15,14 @@ import core.Move;
 import core.factory.BoardFEN; 
 import model.board.Board;
 import model.piece.Piece;
-import model.piece.impl.King; 
+import model.piece.impl.King;
+import view.gui.AssetManager;
 import view.gui.GraphicRender;
 
 public class GraphicGame {
     private final Board board;
-    private GraphicRender renderer = new GraphicRender();
+    private final GraphicRender renderer = new GraphicRender();
+    private final AssetManager assets = new AssetManager();
 
     private Coordinates selectedSquare = null;
     private Color currentTurn = Color.SENTE;
@@ -36,7 +38,15 @@ public class GraphicGame {
     }
 
     public void gameLoop() {
-        renderer.init(board);
+    	// 1. Initialize the renderer FIRST to create the OpenGL display context
+        renderer.init(board, assets); 
+
+        // 2. NOW load the assets (textures) because the OpenGL context is ready
+        if (!assets.loadAssets()) {
+            System.err.println("Critical error: Assets could not be loaded.");
+            return;
+        }
+        
         currentGameState = determineGameState(board, currentTurn);
 
         while (!Display.isCloseRequested()) {
@@ -51,7 +61,7 @@ public class GraphicGame {
             Display.sync(60);
         }
 
-        Display.destroy();
+        cleanup();
     }
 
     private GameState determineGameState(Board board, Color color) {
@@ -99,25 +109,21 @@ public class GraphicGame {
         if (availableMoves.contains(clickedCoords)) {
             Move move = new Move(selectedSquare, clickedCoords);
             
-            // NEW CHECK: Does this move put our own king in check?
             if (validateIfKingInCheckAfterMove(board, currentTurn, move)) {
                 System.out.println("Invalid move: Your king is under attack!");
-                selectedSquare = null; // Reset selection
-                return; // Abort, the move is not made
+                selectedSquare = null; 
+                return;
             }
             
             board.makeMove(move);
-
             currentTurn = currentTurn.opposite();
             selectedSquare = null;
-
             currentGameState = determineGameState(board, currentTurn);
             
             if (currentGameState != GameState.ONGOING) {
                 System.out.println("Game Ended: " + currentGameState);
             }
         } else {
-            // Re-select if clicking another friendly piece
             if (!board.isSquareEmpty(clickedCoords) && board.getPiece(clickedCoords).getColor() == currentTurn) {
                 selectedSquare = clickedCoords;
             } else {
@@ -126,19 +132,21 @@ public class GraphicGame {
         }
     }
 
-    // Copied from InputCoordinates for use within the graphical environment
     private boolean validateIfKingInCheckAfterMove(Board board, Color color, Move move) {
         Board copy = (new BoardFEN()).copy(board);
         copy.makeMove(move);
 
-        // Safely retrieve the king (in case you are testing without one)
         Piece king = copy.getPiecesByColor(color).stream()
                 .filter(piece -> piece instanceof King)
                 .findFirst()
                 .orElse(null);
                 
         if (king == null) return false;
-
         return copy.isSquareAttackedByColor(king.getCoordinates(), color.opposite());
+    }
+
+    private void cleanup() {
+        assets.dispose();
+        Display.destroy();
     }
 }

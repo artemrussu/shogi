@@ -7,34 +7,33 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.*;
 import mdesl.graphics.SpriteBatch;
-import mdesl.graphics.Texture;
-import mdesl.graphics.text.BitmapFont;
 import model.board.Board;
 import model.piece.Piece;
 import view.gui.components.BoardPanel;
 import view.gui.components.LeftPanel;
 import view.gui.components.RightPanel;
-import java.io.IOException;
-import java.net.URL;
 
 public class GraphicRender {
 
     private SpriteBatch batch;
-    private Texture spriteSheet;
+    
+    // NEW: The renderer now holds a reference to the loaded assets
+    private AssetManager assets; 
     
     // UI components
     private BoardPanel boardPanel;
     private LeftPanel leftPanel;
     private RightPanel rightPanel;
 
-    // Custom Font
-    private BitmapFont gameFont; // Field for your personal font
-
     /**
      * Initializes the display and UI components.
      * @param board The game board reference.
+     * @param assets The loaded assets manager.
      */
-    public void init(Board board) {
+    public void init(Board board, AssetManager assets) {
+        // Store the assets so the render method can use them
+        this.assets = assets; 
+
         try {
             // 1. Setup Display
             DisplayMode desktopMode = Display.getDesktopDisplayMode();
@@ -51,17 +50,8 @@ public class GraphicRender {
             glClearColor(0.2f, 0.3f, 0.2f, 1f); 
 
             batch = new SpriteBatch();
-            
-            // 3. Load main spritesheet
-            URL textureUrl = getClass().getClassLoader().getResource("shogi.png");
-            if (textureUrl == null) {
-                System.err.println("Could not find shogi.png!");
-                return;
-            }
-            // This line throws IOException, which is now caught at the bottom
-            spriteSheet = new Texture(textureUrl); 
 
-            // 4. Initialize UI Components
+            // 3. Initialize UI Components
             int screenW = Display.getWidth();
             int screenH = Display.getHeight();
             int tileSize = 75;
@@ -80,23 +70,8 @@ public class GraphicRender {
             leftPanel = new LeftPanel(30, panelY, sidePanelWidth, sidePanelHeight);
             rightPanel = new RightPanel(screenW - sidePanelWidth - 30, panelY, sidePanelWidth, sidePanelHeight);
 
-            // 5. Load Font (Protected in its own try-catch)
-            try {
-                URL fontDefUrl = getClass().getClassLoader().getResource("wide-latin.fnt");
-                URL fontTexUrl = getClass().getClassLoader().getResource("wide-latin_0.png");
-
-                if (fontDefUrl != null && fontTexUrl != null) {
-                    gameFont = new BitmapFont(fontDefUrl, fontTexUrl);
-                    System.out.println("Font loaded successfully!");
-                } else {
-                    System.err.println("Font resource files missing!");
-                }
-            } catch (Exception e) {
-                System.err.println("Font failed to load: " + e.getMessage());
-            }
-
-        // We added IOException here so the compiler knows it's handled!
-        } catch (LWJGLException | IOException e) {
+        // Notice we removed the IOException catch, because file loading is no longer done here!
+        } catch (LWJGLException e) {
             System.err.println("Critical error during initialization:");
             e.printStackTrace();
         }
@@ -129,40 +104,31 @@ public class GraphicRender {
      * @param pieceToMove The piece currently being selected/moved.
      */
     public void render(Board board, Piece pieceToMove) {
-        if (spriteSheet == null || batch == null) return;
+        // We now check assets.spriteSheet instead of a local spriteSheet variable
+        if (assets == null || assets.spriteSheet == null || batch == null) return;
 
         glClear(GL_COLOR_BUFFER_BIT);
         batch.begin();
 
         drawBackground();
 
-        // 1. Draw side panels
-        if (leftPanel != null) leftPanel.render(batch, spriteSheet);
-        if (rightPanel != null) rightPanel.render(batch, spriteSheet);
+        // 1. Draw side panels (Notice we pass assets.spriteSheet)
+        if (leftPanel != null) leftPanel.render(batch, assets.spriteSheet);
+        if (rightPanel != null) rightPanel.render(batch, assets.spriteSheet);
 
         // 2. Draw central board
         if (boardPanel != null) {
             boardPanel.setPieceToMove(pieceToMove);
-            boardPanel.render(batch, spriteSheet);
+            boardPanel.render(batch, assets.spriteSheet);
         }
 
-        // 3. Draw Custom Font (Example: Centered Message)
-        if (gameFont != null) {
+        // 3. Draw Custom Font using the AssetManager
+        if (assets.gameFont != null) {
             String message = "SHOGI";
-            int textWidth = gameFont.getWidth(message);
+            int textWidth = assets.gameFont.getWidth(message);
          
-            // --- CHANGE COLOR HERE ---
-            // The values are (Red, Green, Blue, Alpha). 
-            // All values are between 0.0f and 1.0f.
-            // Example: Bright Yellow (1f, 1f, 0f, 1f)
             batch.setColor(1f, 1f, 0f, 1f); 
-            
-            // Draw text
-            gameFont.drawText(batch, message, (Display.getWidth() - textWidth) / 2, 50);
-            
-            // --- IMPORTANT: RESET COLOR ---
-            // Reset to white (1f, 1f, 1f, 1f) so the color doesn't 
-            // "bleed" onto your board or pieces drawn later!
+            assets.gameFont.drawText(batch, message, (Display.getWidth() - textWidth) / 2, 50);
             batch.setColor(1f, 1f, 1f, 1f);
         }
 
@@ -174,22 +140,17 @@ public class GraphicRender {
      * Draws the background sprite from the spritesheet scaled to the display size.
      */
     private void drawBackground() {
-        // The column and row of your background tile in the spritesheet
         int backgroundCol = 3;
         int backgroundRow = 2;
 
         int screenWidth = Display.getWidth();
         int screenHeight = Display.getHeight();
-        
-        // Define the size we want to draw each background tile (256x256)
         int tileDrawSize = 256; 
 
-        // Loop through the screen width and height to tile the image
         for (int x = 0; x < screenWidth; x += tileDrawSize) {
             for (int y = 0; y < screenHeight; y += tileDrawSize) {
-                
-                // Draw the tile at the current position
-                SpriteUtil.drawSprite(batch, spriteSheet, 
+                // Use assets.spriteSheet here!
+                SpriteUtil.drawSprite(batch, assets.spriteSheet, 
                                       backgroundCol, backgroundRow, 
                                       x, y, 
                                       tileDrawSize, tileDrawSize, 
