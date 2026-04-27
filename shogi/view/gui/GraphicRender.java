@@ -2,21 +2,20 @@ package view.gui;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
-
 import core.Coordinates;
-
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
-
 import static org.lwjgl.opengl.GL11.*;
-
 import mdesl.graphics.SpriteBatch;
 import mdesl.graphics.Texture;
+import mdesl.graphics.text.BitmapFont;
 import model.board.Board;
 import model.piece.Piece;
 import view.gui.components.BoardPanel;
 import view.gui.components.LeftPanel;
 import view.gui.components.RightPanel;
+import java.io.IOException;
+import java.net.URL;
 
 public class GraphicRender {
 
@@ -28,17 +27,24 @@ public class GraphicRender {
     private LeftPanel leftPanel;
     private RightPanel rightPanel;
 
+    // Custom Font
+    private BitmapFont gameFont; // Field for your personal font
+
     /**
      * Initializes the display and UI components.
      * @param board The game board reference.
      */
     public void init(Board board) {
         try {
-            Display.setDisplayMode(new DisplayMode(1920, 1080));
+            // 1. Setup Display
+            DisplayMode desktopMode = Display.getDesktopDisplayMode();
+            Display.setDisplayMode(desktopMode);
+            Display.setFullscreen(true);
             Display.setTitle("Shogi Game");
             Display.setVSyncEnabled(true);
             Display.create();
-
+            
+            // 2. OpenGL Setup
             glDisable(GL_DEPTH_TEST); 
             glEnable(GL_BLEND);       
             glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 
@@ -46,21 +52,21 @@ public class GraphicRender {
 
             batch = new SpriteBatch();
             
-            java.net.URL textureUrl = getClass().getClassLoader().getResource("shogi.png");
+            // 3. Load main spritesheet
+            URL textureUrl = getClass().getClassLoader().getResource("shogi.png");
             if (textureUrl == null) {
-                System.err.println("ERROR: File shogi.png not found!");
+                System.err.println("Could not find shogi.png!");
                 return;
             }
+            // This line throws IOException, which is now caught at the bottom
             spriteSheet = new Texture(textureUrl); 
-            
+
+            // 4. Initialize UI Components
             int screenW = Display.getWidth();
             int screenH = Display.getHeight();
-            
             int tileSize = 75;
-            int boardInnerSize = 9 * tileSize; // 675
+            int boardInnerSize = 9 * tileSize;
             int frameSize = 75;
-
-            // 675 + 150 = 825
             int boardPanelSize = boardInnerSize + (frameSize * 2); 
 
             int boardX = (screenW - boardPanelSize) / 2;
@@ -68,16 +74,30 @@ public class GraphicRender {
             
             int sidePanelWidth = 500;
             int sidePanelHeight = 950;
-            int panelY = 65;
+            int panelY = (screenH - sidePanelHeight) / 2;
             
-            // Instantiate components using the clean variables
             boardPanel = new BoardPanel(boardX, boardY, boardPanelSize, boardPanelSize, board);
             leftPanel = new LeftPanel(30, panelY, sidePanelWidth, sidePanelHeight);
             rightPanel = new RightPanel(screenW - sidePanelWidth - 30, panelY, sidePanelWidth, sidePanelHeight);
-            
-        } catch (LWJGLException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
+
+            // 5. Load Font (Protected in its own try-catch)
+            try {
+                URL fontDefUrl = getClass().getClassLoader().getResource("wide-latin.fnt");
+                URL fontTexUrl = getClass().getClassLoader().getResource("wide-latin_0.png");
+
+                if (fontDefUrl != null && fontTexUrl != null) {
+                    gameFont = new BitmapFont(fontDefUrl, fontTexUrl);
+                    System.out.println("Font loaded successfully!");
+                } else {
+                    System.err.println("Font resource files missing!");
+                }
+            } catch (Exception e) {
+                System.err.println("Font failed to load: " + e.getMessage());
+            }
+
+        // We added IOException here so the compiler knows it's handled!
+        } catch (LWJGLException | IOException e) {
+            System.err.println("Critical error during initialization:");
             e.printStackTrace();
         }
     }
@@ -124,6 +144,26 @@ public class GraphicRender {
         if (boardPanel != null) {
             boardPanel.setPieceToMove(pieceToMove);
             boardPanel.render(batch, spriteSheet);
+        }
+
+        // 3. Draw Custom Font (Example: Centered Message)
+        if (gameFont != null) {
+            String message = "SHOGI";
+            int textWidth = gameFont.getWidth(message);
+         
+            // --- CHANGE COLOR HERE ---
+            // The values are (Red, Green, Blue, Alpha). 
+            // All values are between 0.0f and 1.0f.
+            // Example: Bright Yellow (1f, 1f, 0f, 1f)
+            batch.setColor(1f, 1f, 0f, 1f); 
+            
+            // Draw text
+            gameFont.drawText(batch, message, (Display.getWidth() - textWidth) / 2, 50);
+            
+            // --- IMPORTANT: RESET COLOR ---
+            // Reset to white (1f, 1f, 1f, 1f) so the color doesn't 
+            // "bleed" onto your board or pieces drawn later!
+            batch.setColor(1f, 1f, 1f, 1f);
         }
 
         batch.end();

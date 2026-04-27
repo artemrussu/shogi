@@ -15,8 +15,8 @@ public class BoardPanel extends UIComponent {
     private final int TILE_SIZE = 75;
 
     public BoardPanel(int x, int y, int width, int height, Board board) {
-        // We pass 75 here to lock the board's frame thickness
-        super(x, y, width, height, 75);
+        // thickness = 75, Corner = (1, 2), Straight = (2, 2)
+        super(x, y, width, height, 75, 1, 2, 2, 2); 
         this.board = board;
     }
 

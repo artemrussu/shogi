@@ -6,14 +6,14 @@ import mdesl.graphics.Texture;
 public class LeftPanel extends UIComponent {
 
     public LeftPanel(int x, int y, int width, int height) {
-        // Pass 50 as the frame thickness to the parent
-        super(x, y, width, height, 50);
+        // Example: thickness = 50, Corner = (4, 2), Straight = (5, 2)
+        // (Replace these with your actual sprite indices from the sheet)
+        super(x, y, width, height, 50, 4, 2, 5, 2); 
     }
 
     @Override
     public void render(SpriteBatch batch, Texture spriteSheet) {
         drawFrame(batch, spriteSheet);
-        // Add specific left panel text or captured pieces rendering here
     }
 
     @Override
