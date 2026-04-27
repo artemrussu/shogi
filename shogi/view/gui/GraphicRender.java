@@ -53,25 +53,24 @@ public class GraphicRender {
             }
             spriteSheet = new Texture(textureUrl); 
             
-         // UI LAYOUT CALCULATIONS
-         // UI LAYOUT CALCULATIONS
             int screenW = Display.getWidth();
             int screenH = Display.getHeight();
             
-            int boardGridSize = 9 * 75; // 675
-            int frameThickness = 70;
-            // Total size including the frame on both sides (70 + 675 + 70)
-            int boardPanelSize = boardGridSize + (frameThickness * 2); 
+            int tileSize = 75;
+            int boardInnerSize = 9 * tileSize; // 675
+            int frameSize = 75;
 
-            // 1. Calculate X and Y FIRST
-            int boardX = (screenW - boardPanelSize) / 2; 
-            int boardY = (screenH - boardPanelSize) / 2; 
+            // 675 + 150 = 825
+            int boardPanelSize = boardInnerSize + (frameSize * 2); 
+
+            int boardX = (screenW - boardPanelSize) / 2;
+            int boardY = (screenH - boardPanelSize) / 2;
             
             int sidePanelWidth = 500;
             int sidePanelHeight = 950;
             int panelY = 65;
             
-            // 2. Instantiate UI panels SECOND
+            // Instantiate components using the clean variables
             boardPanel = new BoardPanel(boardX, boardY, boardPanelSize, boardPanelSize, board);
             leftPanel = new LeftPanel(30, panelY, sidePanelWidth, sidePanelHeight);
             rightPanel = new RightPanel(screenW - sidePanelWidth - 30, panelY, sidePanelWidth, sidePanelHeight);
@@ -115,7 +114,6 @@ public class GraphicRender {
         glClear(GL_COLOR_BUFFER_BIT);
         batch.begin();
 
-        // New background rendering call
         drawBackground();
 
         // 1. Draw side panels
