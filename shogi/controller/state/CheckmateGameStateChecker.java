@@ -1,24 +1,50 @@
 package controller.state;
-import controller.MoveValidator;
+import java.util.List;
+import java.util.Set;
+
 import core.Color;
 import core.Coordinates;
 import core.Move;
-import model.board.Board;
+import core.factory.BoardFEN;
+import model.Board;
 import model.piece.Piece;
+import model.piece.impl.King;
 
 public class CheckmateGameStateChecker extends GameStateChecker {
     @Override
     public GameState check(Board board, Color color) {
-        // ... (Keep the initial "is King in check" check) ...
+        // check if king in check
+        // check that there is no move to prevent this check
 
-        for (Piece piece : board.getPiecesByColor(color)) {
-            for (Coordinates to : piece.getAvailableMoveSquares(board)) {
-                // Use the utility!
-                if (MoveValidator.isKingSafeAfterMove(board, color, new Move(piece.getCoordinates(), to))) {
-                    return GameState.ONGOING; // Found a way out!
+        // we trust that there is king on the board
+        Piece king = board.getPiecesByColor(color).stream().filter(piece -> piece instanceof King)
+        		.findFirst().get();
+
+        if (!board.isSquareAttackedByColor(king.getCoordinates(), color.opposite())) {
+            return GameState.ONGOING;
+        }
+
+        List<Piece> pieces = board.getPiecesByColor(color);
+        for (Piece piece : pieces) {
+            Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
+
+            for (Coordinates coordinates : availableMoveSquares) {
+                Board clone = new BoardFEN().copy(board);
+                clone.makeMove(new Move(piece.getCoordinates(), coordinates));
+
+                Piece clonedKing = clone.getPiecesByColor(color).stream().filter(p -> p instanceof King)
+                		.findFirst().get();
+
+                if (!clone.isSquareAttackedByColor(clonedKing.getCoordinates(), color.opposite())) {
+                    return GameState.ONGOING;
                 }
             }
         }
-        return (color == Color.SENTE) ? GameState.CHECKMATE_TO_BLACK_KING : GameState.CHECKMATE_TO_WHITE_KING;
+
+        if (color == Color.SENTE) {
+            return GameState.CHECKMATE_TO_WHITE_KING;
+        } else {
+            return GameState.CHECKMATE_TO_BLACK_KING;
+        }
     }
 }

@@ -4,10 +4,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Collection of static utility methods for board coordinate geometry.
- * Provides helper functions to find paths between squares.
+ * Collection of static utility methods.
  */
 public class BoardUtils {
+	
+	/**
+	 * Enemy camp.
+	 */
+	public static boolean isInPromotionZone(Coordinates coordinates, Color color) {
+        if (color == Color.SENTE) return coordinates.rank <= 3;
+        return coordinates.rank >= 7;
+    }
     
     /**
      * Returns a list of coordinates located diagonally between source and target.

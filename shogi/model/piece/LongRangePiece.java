@@ -5,7 +5,7 @@ import java.util.List;
 import core.BoardUtils;
 import core.Color;
 import core.Coordinates;
-import model.board.Board;
+import model.Board;
 
 /**
  * Base class for pieces that can move across multiple empty squares in a specific direction.

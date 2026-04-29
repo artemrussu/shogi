@@ -3,7 +3,7 @@ package core.factory;
 import core.Coordinates;
 import core.File;
 import core.Move;
-import model.board.Board;
+import model.Board;
 
 /**
  * Utility class for converting FEN (Forsyth–Edwards Notation) strings into

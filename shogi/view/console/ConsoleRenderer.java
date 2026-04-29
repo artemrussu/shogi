@@ -5,7 +5,7 @@ import java.util.Set;
 import core.Color;
 import core.Coordinates;
 import core.File;
-import model.board.Board;
+import model.Board;
 import model.piece.Piece;
 
 /**

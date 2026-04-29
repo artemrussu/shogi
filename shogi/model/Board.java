@@ -1,4 +1,4 @@
-package model.board;
+package model;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,7 +7,10 @@ import java.util.Set;
 
 import core.Color;
 import core.Coordinates;
+import core.DropMove;
 import core.Move;
+import core.PieceType;
+import core.factory.PieceFactory;
 import model.piece.Piece;
 
 /**
@@ -17,25 +20,46 @@ public class Board {
     /** Map containing all pieces currently on the board, keyed by their coordinates. */
     HashMap<Coordinates, Piece> pieces = new HashMap<>();
     
+    public Hand hand = new Hand();
     public List<Move> moves = new ArrayList<>();
     public final String startingFen;
     
     public Board(String startingFen) {
         this.startingFen = startingFen;
     }
-
     
     /***************************/
-    public void setPiece(Coordinates coordinates, Piece piece) {
-        piece.setCoordinates(coordinates);
-        pieces.put(coordinates, piece);
-    }
-
     public void makeMove(Move move) {
+
+        // --- drop from hand ---
+        if (move instanceof DropMove) {
+            DropMove drop = (DropMove) move;
+            hand.remove(drop.color, drop.pieceType);
+            Piece piece = PieceFactory.create(drop.pieceType, drop.color, drop.to);
+            setPiece(drop.to, piece);
+            moves.add(move);
+            return;
+        }
+
+        // --- normal move ---
         Piece piece = getPiece(move.from);
 
+        // capture: put the base version of the piece into the attacker's hand
+        if (!isSquareEmpty(move.to)) {
+            Piece captured = getPiece(move.to);
+            hand.add(piece.getColor(), captured.getBaseType());
+        }
+
         removePiece(move.from);
-        setPiece(move.to, piece);
+
+        // promotion: create a new piece via factory
+        if (move.promote) {
+            PieceType promotedType = piece.getPieceType().getPromotedType();
+            Piece promoted = PieceFactory.create(promotedType, piece.getColor(), move.to);
+            setPiece(move.to, promoted);
+        } else {
+            setPiece(move.to, piece);
+        }
 
         moves.add(move);
     }
@@ -45,6 +69,14 @@ public class Board {
     }
     /***************************/
 
+    public Piece getPiece(Coordinates coordinates) {
+        return pieces.get(coordinates);
+    }
+    
+    public void setPiece(Coordinates coordinates, Piece piece) {
+        piece.setCoordinates(coordinates);
+        pieces.put(coordinates, piece);
+    }
     
     public static boolean isSquareDark(Coordinates coordinates) {
         return (((coordinates.file.ordinal() + 1) + coordinates.rank) % 2) == 0;
@@ -54,11 +86,33 @@ public class Board {
         return !pieces.containsKey(coordinates);
     }
 
-    public Piece getPiece(Coordinates coordinates) {
-        return pieces.get(coordinates);
-    }
+	public boolean isSquareAttackedByColor(Coordinates coordinates, Color color) {
+		List<Piece> pieces = getPiecesByColor(color);
+		
+		for (Piece piece : pieces) {
+			Set<Coordinates> attackedSquares = piece.getAttackedSquares(this);
+			
+			if (attackedSquares.contains(coordinates)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
 
-    /**
+	public List<Piece> getPiecesByColor(Color color) {
+		List<Piece> result = new ArrayList<>();
+		
+		for (Piece piece : pieces.values()) {
+			if (piece.getColor() == color) {
+				result.add(piece);
+			}
+		}
+		
+		return result;
+	}
+	
+	/**
      * Sets up the board with the standard starting configuration of pieces.
      * Configurated from BoardFEN. This version for debug only.
      */
@@ -105,32 +159,6 @@ public class Board {
 //		// kings
 //		setPiece(new Coordinates(File.E, 1), new King(Color.SENTE, new Coordinates(File.E, 1)));
 //		setPiece(new Coordinates(File.E, 9), new King(Color.GOTE, new Coordinates(File.E, 9)));
-	}
-
-	public boolean isSquareAttackedByColor(Coordinates coordinates, Color color) {
-		List<Piece> pieces = getPiecesByColor(color);
-		
-		for (Piece piece : pieces) {
-			Set<Coordinates> attackedSquares = piece.getAttackedSquares(this);
-			
-			if (attackedSquares.contains(coordinates)) {
-				return true;
-			}
-		}
-		
-		return false;
-	}
-
-	public List<Piece> getPiecesByColor(Color color) {
-		List<Piece> result = new ArrayList<>();
-		
-		for (Piece piece : pieces.values()) {
-			if (piece.getColor() == color) {
-				result.add(piece);
-			}
-		}
-		
-		return result;
 	}
 
 }

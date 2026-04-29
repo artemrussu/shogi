@@ -1,22 +1,27 @@
 package model.piece.impl;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import core.Color;
 import core.Coordinates;
 import core.CoordinatesShift;
+import core.PieceType;
 import model.piece.Piece;
 
 /**
- * Represents the Silver General piece. Traditionally moves one square
- * diagonally or one square directly forward.
+ * Moves one square in any direction except sideways (left/right) and directly backward.
+ * Can be promoted to a promoted silver.
  */
 public class Silver extends Piece {
 
 	public Silver(Color color, Coordinates coordinates) {
 		super(color, coordinates);
+	}
+	
+    @Override
+	public PieceType getPieceType() {
+		return PieceType.SILVER;
 	}
 
 	/**

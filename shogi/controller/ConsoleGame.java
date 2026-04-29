@@ -11,7 +11,7 @@ import core.Color;
 import core.Coordinates;
 import core.InputCoordinates;
 import core.Move;
-import model.board.Board;
+import model.Board;
 import model.piece.Piece;
 import view.console.ConsoleRenderer;
 
@@ -37,31 +37,40 @@ public class ConsoleGame {
 	 */
 	public void gameLoop() {
 		Color colorToMove = Color.SENTE;
-
 		GameState state = determineGameState(board, colorToMove);
 
 		while (state == GameState.ONGOING) {
 			renderer.render(board);
-
-			if (colorToMove == Color.SENTE) {
-				System.out.println("White to move");
-			} else {
-				System.out.println("Black to move");
-			}
+			System.out.println(colorToMove == Color.SENTE ? "White to move" : "Black to move");
 
 			Move move = InputCoordinates.inputMove(board, colorToMove, renderer);
 
-			// make move
-			board.makeMove(move);
+			// buildMove decides: whether promotion is needed
+			Move finalMove = buildMove(board, move);
 
-			// pass move
+			board.makeMove(finalMove);
 			colorToMove = colorToMove.opposite();
-
 			state = determineGameState(board, colorToMove);
 		}
 
 		renderer.render(board);
 		System.out.println("Game ended with state = " + state);
+	}
+
+	private Move buildMove(Board board, Move move) {
+	    Piece piece = board.getPiece(move.from);
+
+	    if (!piece.canPromote(move.to)) {
+	        return move;
+	    }
+
+	    if (piece.mustPromote(move.to)) {
+	        System.out.println("Piece promotes automatically!");
+	        return new Move(move.from, move.to, true);
+	    }
+
+	    boolean promote = InputCoordinates.inputPromotionChoice();
+	    return new Move(move.from, move.to, promote);
 	}
 
 	private GameState determineGameState(Board board, Color color) {

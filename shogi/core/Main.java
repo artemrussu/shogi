@@ -5,7 +5,7 @@ import java.util.Scanner;
 import controller.ConsoleGame;
 import controller.GraphicGame;
 import core.factory.BoardFEN;
-import model.board.Board;
+import model.Board;
 
 /**
  * The main entry point of the application.

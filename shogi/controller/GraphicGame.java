@@ -12,8 +12,8 @@ import controller.state.StalemateGameStateChecker;
 import core.Color;
 import core.Coordinates;
 import core.Move;
-import core.factory.BoardFEN; 
-import model.board.Board;
+import core.factory.BoardFEN;
+import model.Board;
 import model.piece.Piece;
 import model.piece.impl.King;
 import view.gui.AssetManager;
@@ -27,6 +27,8 @@ public class GraphicGame {
     private Coordinates selectedSquare = null;
     private Color currentTurn = Color.SENTE;
     
+    private Move pendingMove = null; // move waiting for promotion decision
+    
     private GameState currentGameState = GameState.ONGOING;
     private final List<GameStateChecker> checkers = List.of(
             new StalemateGameStateChecker(),
@@ -38,7 +40,7 @@ public class GraphicGame {
     }
 
     public void gameLoop() {
-    	// 1. Initialize the renderer FIRST to create the OpenGL display context
+        // 1. Initialize the renderer FIRST to create the OpenGL display context
         renderer.init(board, assets); 
 
         // 2. NOW load the assets (textures) because the OpenGL context is ready
@@ -77,12 +79,15 @@ public class GraphicGame {
     private void handleInput() {
         while (Mouse.next()) {
             if (Mouse.getEventButton() == 0 && Mouse.getEventButtonState()) {
-                Coordinates clickedCoords = renderer.getCoordinatesFromMouse();
 
-                if (clickedCoords == null) {
-                    selectedSquare = null;
+                // if waiting for player's response — handle click on dialog button
+                if (pendingMove != null) {
+                    handlePromotionDialog();
                     continue;
                 }
+
+                Coordinates clickedCoords = renderer.getCoordinatesFromMouse();
+                if (clickedCoords == null) { selectedSquare = null; continue; }
 
                 if (selectedSquare == null) {
                     selectPiece(clickedCoords);
@@ -92,7 +97,7 @@ public class GraphicGame {
             }
         }
     }
-
+    
     private void selectPiece(Coordinates clickedCoords) {
         if (!board.isSquareEmpty(clickedCoords)) {
             Piece piece = board.getPiece(clickedCoords);
@@ -106,29 +111,61 @@ public class GraphicGame {
         Piece pieceToMove = board.getPiece(selectedSquare);
         Set<Coordinates> availableMoves = pieceToMove.getAvailableMoveSquares(board);
 
-        if (availableMoves.contains(clickedCoords)) {
-            Move move = new Move(selectedSquare, clickedCoords);
-            
-            if (validateIfKingInCheckAfterMove(board, currentTurn, move)) {
-                System.out.println("Invalid move: Your king is under attack!");
-                selectedSquare = null; 
-                return;
-            }
-            
-            board.makeMove(move);
-            currentTurn = currentTurn.opposite();
-            selectedSquare = null;
-            currentGameState = determineGameState(board, currentTurn);
-            
-            if (currentGameState != GameState.ONGOING) {
-                System.out.println("Game Ended: " + currentGameState);
-            }
-        } else {
-            if (!board.isSquareEmpty(clickedCoords) && board.getPiece(clickedCoords).getColor() == currentTurn) {
+        if (!availableMoves.contains(clickedCoords)) {
+            // switch selection or deselect
+            if (!board.isSquareEmpty(clickedCoords)
+                    && board.getPiece(clickedCoords).getColor() == currentTurn) {
                 selectedSquare = clickedCoords;
             } else {
                 selectedSquare = null;
             }
+            return;
+        }
+
+        Move move = new Move(selectedSquare, clickedCoords);
+
+        if (validateIfKingInCheckAfterMove(board, currentTurn, move)) {
+            System.out.println("Invalid move: king is under attack!");
+            selectedSquare = null;
+            return;
+        }
+
+        // must promote
+        if (pieceToMove.mustPromote(clickedCoords)) {
+            executeMove(new Move(move.from, move.to, true));
+            return;
+        }
+
+        // may promote — wait for player's decision
+        if (pieceToMove.canPromote(clickedCoords)) {
+            pendingMove = move; // remember the move, show dialog
+            renderer.showPromotionDialog(); // you implement this in renderer
+            return;
+        }
+
+        // without promotion
+        executeMove(move);
+    }
+
+    private void handlePromotionDialog() {
+        // renderer returns: true = "yes", false = "no", null = not clicked yet
+        Boolean choice = renderer.getPromotionDialogChoice();
+        if (choice == null) return; // wait
+
+        Move finalMove = new Move(pendingMove.from, pendingMove.to, choice);
+        pendingMove = null;
+        renderer.hidePromotionDialog();
+        executeMove(finalMove);
+    }
+
+    private void executeMove(Move move) {
+        board.makeMove(move);
+        currentTurn = currentTurn.opposite();
+        selectedSquare = null;
+        currentGameState = determineGameState(board, currentTurn);
+
+        if (currentGameState != GameState.ONGOING) {
+            System.out.println("Game Ended: " + currentGameState);
         }
     }
 

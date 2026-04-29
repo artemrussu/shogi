@@ -1,18 +1,26 @@
 package model.piece;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 import core.Color;
 import core.Coordinates;
 import core.CoordinatesShift;
+import core.PieceType;
 
-public class GoldLikePiece extends Piece {
+/**
+ * Represents all pieces that move like a gold general.
+ * Moves one square forward, backward, left, right, or diagonally forward;
+ * cannot move diagonally backward.
+ */
+public abstract  class GoldLikePiece extends Piece {
 
 	public GoldLikePiece(Color color, Coordinates coordinates) {
 		super(color, coordinates);
 	}
+	
+	@Override
+	public abstract PieceType getPieceType();
 
 	@Override
 	protected Set<CoordinatesShift> getPieceMoves() {
@@ -33,5 +41,4 @@ public class GoldLikePiece extends Piece {
 
 	    return moves;
 	}
-
 }

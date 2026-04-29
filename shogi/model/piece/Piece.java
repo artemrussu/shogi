@@ -3,13 +3,15 @@ package model.piece;
 import java.util.HashSet;
 import java.util.Set;
 
+import core.BoardUtils;
 import core.Color;
 import core.Coordinates;
 import core.CoordinatesShift;
-import model.board.Board;
+import core.PieceType;
+import model.Board;
 
 /**
- * Base class for all Shogi pieces.
+ * Base class for all pieces.
  * Encapsulates common state (color, coordinates) and movement logic.
  */
 public abstract class Piece {
@@ -23,27 +25,21 @@ public abstract class Piece {
         this.color = color;
         this.coordinates = coordinates;
     }
-
-    /**
-     * @return The color of this piece (SENTE or GOTE).
-     */
-    public Color getColor() {
-        return color;
+    
+    public abstract PieceType getPieceType();
+    
+    public PieceType getBaseType() {
+        return getPieceType().getBaseType();
     }
 
+    public Color getColor() { return color; }
+    public Coordinates getCoordinates() { return coordinates; }
+    public void setCoordinates(Coordinates coordinates) { this.coordinates = coordinates; }
+    
     /**
-     * @return Current coordinates of the piece on the board.
+     * To be implemented by subclasses to define specific movement vectors.
      */
-    public Coordinates getCoordinates() {
-        return coordinates;
-    }
-
-    /**
-     * Updates the piece's position.
-     */
-    public void setCoordinates(Coordinates coordinates) {
-        this.coordinates = coordinates;
-    }
+    protected abstract Set<CoordinatesShift> getPieceMoves();
 
     /**
      * Calculates all squares where the piece can legally move.
@@ -71,11 +67,6 @@ public abstract class Piece {
     protected boolean isSquareAvailableForMove(Coordinates coordinates, Board board) {
         return board.isSquareEmpty(coordinates) || board.getPiece(coordinates).getColor() != getColor();
     }
-
-    /**
-     * To be implemented by subclasses to define specific movement vectors.
-     */
-    protected abstract Set<CoordinatesShift> getPieceMoves();
 
     /**
      * Returns the patterns used for attacking. Defaults to movement patterns.
@@ -110,5 +101,18 @@ public abstract class Piece {
      */
     protected boolean isSquareAvailableForAttack(Coordinates coordinates, Board board) {
         return true;
+    }
+    
+    public boolean canPromote(Coordinates target) {
+        return getPieceType().canPromote()
+            && BoardUtils.isInPromotionZone(target, getColor());
+    }
+    
+    /**
+     * Some pieces must be forcibly promoted when 
+     * no more moves are available on the board (for example, a pawn reaches the last rank).
+     */
+    public boolean mustPromote(Coordinates target) {
+        return false;
     }
 }

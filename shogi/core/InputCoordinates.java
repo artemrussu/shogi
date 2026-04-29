@@ -4,7 +4,7 @@ import java.util.Scanner;
 import java.util.Set;
 
 import core.factory.BoardFEN;
-import model.board.Board;
+import model.Board;
 import model.piece.Piece;
 import model.piece.impl.King;
 import view.console.ConsoleRenderer;
@@ -128,6 +128,18 @@ public class InputCoordinates {
 
 			return move;
 		}
+	}
+	
+	public static boolean inputPromotionChoice() {
+	    while (true) {
+	        System.out.println("Promote piece? (y/n):");
+	        String answer = scanner.nextLine().trim().toLowerCase();
+
+	        if (answer.equals("y")) return true;
+	        if (answer.equals("n")) return false;
+
+	        System.out.println("Invalid input, enter y or n");
+	    }
 	}
 
 	private static boolean validateIfKingInCheckAfterMove(Board board, Color color, Move move) {

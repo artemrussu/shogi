@@ -6,22 +6,26 @@ import java.util.Set;
 import core.Color;
 import core.Coordinates;
 import core.CoordinatesShift;
-import model.board.Board;
+import core.PieceType;
+import model.Board;
 import model.piece.Piece;
 
 /**
- * Represents the King piece. Moves exactly one square in any direction
- * (horizontal, vertical, or diagonal).
+ * Moves one square in any direction;
+ * Cannot move into check.
+ * Cannot be promoted.
  */
 public class King extends Piece {
 
 	public King(Color color, Coordinates coordinates) {
 		super(color, coordinates);
 	}
+	
+    @Override
+	public PieceType getPieceType() {
+		return PieceType.KING;
+	}
 
-	/**
-	 * Generates all 8 possible adjacent movement vectors for the King.
-	 */
 	@Override
 	protected Set<CoordinatesShift> getPieceMoves() {
 		Set<CoordinatesShift> result = new HashSet<>();

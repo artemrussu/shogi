@@ -2,6 +2,7 @@ package model.piece.impl.prom;
 
 import core.Color;
 import core.Coordinates;
+import core.PieceType;
 import model.piece.GoldLikePiece;
 
 public class PromotedLance extends GoldLikePiece {
@@ -10,4 +11,8 @@ public class PromotedLance extends GoldLikePiece {
 		super(color, coordinates);
 	}
 
+    @Override
+	public PieceType getPieceType() {
+		return PieceType.PROMOTED_LANCE;
+	}
 }

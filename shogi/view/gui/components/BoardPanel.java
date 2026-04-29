@@ -5,7 +5,7 @@ import core.Coordinates;
 import core.File;
 import mdesl.graphics.SpriteBatch;
 import mdesl.graphics.Texture;
-import model.board.Board;
+import model.Board;
 import model.piece.Piece;
 import view.gui.SpriteUtil;
 

@@ -5,7 +5,7 @@ import java.util.Set;
 
 import core.Color;
 import core.Coordinates;
-import model.board.Board;
+import model.Board;
 import model.piece.Piece;
 
 public class StalemateGameStateChecker extends GameStateChecker {

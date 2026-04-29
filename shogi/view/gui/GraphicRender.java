@@ -7,7 +7,7 @@ import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.*;
 import mdesl.graphics.SpriteBatch;
-import model.board.Board;
+import model.Board;
 import model.piece.Piece;
 import view.gui.components.BoardPanel;
 import view.gui.components.LeftPanel;
