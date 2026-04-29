@@ -7,6 +7,7 @@ import core.Color;
 import core.Coordinates;
 import core.CoordinatesShift;
 import core.PieceType;
+import model.piece.LongRangePiece;
 import model.piece.Piece;
 
 /**
@@ -14,7 +15,7 @@ import model.piece.Piece;
  * Can be promoted to a promoted lance (golden like);
  * Must be forcibly promoted when no more moves are available on the board.
  */
-public class Lance extends Piece {
+public class Lance extends LongRangePiece {
     
     public Lance(Color color, Coordinates coordinates) {
         super(color, coordinates);

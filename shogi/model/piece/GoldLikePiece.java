@@ -13,7 +13,7 @@ import core.PieceType;
  * Moves one square forward, backward, left, right, or diagonally forward;
  * cannot move diagonally backward.
  */
-public abstract  class GoldLikePiece extends Piece {
+public abstract class GoldLikePiece extends Piece {
 
 	public GoldLikePiece(Color color, Coordinates coordinates) {
 		super(color, coordinates);

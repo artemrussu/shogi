@@ -28,16 +28,16 @@ public class SpriteUtil {
     public static void drawPiece(SpriteBatch batch, Texture sheet, Piece piece, float x, float y, float size) {
         int col = 0; int row = 0; 
 
-        switch (piece.getClass().getSimpleName()) {
-            case "Lance": col = 2; break;
-            case "Knight": col = 3; break;
-            case "Silver": col = 4; break;
-            case "Gold": col = 5; break;
-            case "King": col = 6; break; 
-            case "Rook": col = 0; row = 1; break;
-            case "Bishop": col = 1; row = 1; break;
-            case "Pawn": col = 7; break;
-        }
+        switch (piece.getPieceType()) {
+        case PAWN:   col = 0; row = 0; break; 		case TOKIN:				col = 0; row = 2; break;
+        case LANCE:  col = 2; row = 0; break;		case PROMOTED_LANCE:  	col = 3; row = 2; break;
+        case KNIGHT: col = 3; row = 0; break;		case PROMOTED_KNIGHT: 	col = 4; row = 2; break;
+        case SILVER: col = 4; row = 0; break;		case PROMOTED_SILVER: 	col = 5; row = 2; break;
+        case GOLD:   col = 5; row = 0; break;
+        case KING:   col = 6; row = 0; break;
+        case ROOK:   col = 0; row = 1; break;		case DRAGON: 			col = 1; row = 2; break;
+        case BISHOP: col = 1; row = 1; break;		case HORSE: 				col = 2; row = 2; break;
+    }
 
         float rotation = (piece.getColor() == Color.SENTE) ? 180f : 0f;
         drawSprite(batch, sheet, col, row, x, y, size, size, rotation);

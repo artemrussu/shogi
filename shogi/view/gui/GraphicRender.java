@@ -2,10 +2,17 @@ package view.gui;
 
 import org.lwjgl.opengl.Display;
 import org.lwjgl.opengl.DisplayMode;
+
+import core.Color;
 import core.Coordinates;
+import core.PieceType;
+
 import org.lwjgl.LWJGLException;
 import org.lwjgl.input.Mouse;
 import static org.lwjgl.opengl.GL11.*;
+
+import java.util.Set;
+
 import mdesl.graphics.SpriteBatch;
 import model.Board;
 import model.piece.Piece;
@@ -16,14 +23,21 @@ import view.gui.components.RightPanel;
 public class GraphicRender {
 
     private SpriteBatch batch;
-    
-    // NEW: The renderer now holds a reference to the loaded assets
     private AssetManager assets; 
     
     // UI components
     private BoardPanel boardPanel;
     private LeftPanel leftPanel;
     private RightPanel rightPanel;
+    
+    private boolean promotionDialogVisible = false;
+    private Boolean promotionDialogChoice = null;
+    
+    private static final int TILE_SIZE 			= 75;
+    private static final int FRAME_SIZE 			= 75;
+    private static final int SIDE_PANEL_W 		= 500;
+    private static final int SIDE_PANEL_H 		= 950;
+    private static final int SIDE_PANEL_MARGIN 	= 30;
 
     /**
      * Initializes the display and UI components.
@@ -96,7 +110,7 @@ public class GraphicRender {
      */
     public void processEvents() {
         Display.processMessages();
-    }    
+    }
 
     /**
      * Renders the game interface components.
@@ -157,5 +171,136 @@ public class GraphicRender {
                                       0f);
             }
         }
+    }
+    
+    
+    ////////////////////////
+    ///
+    public void render(Board board, Piece pieceToMove, Set<Coordinates> availableMoves) {
+        if (assets == null || assets.spriteSheet == null || batch == null) return;
+
+        glClear(GL_COLOR_BUFFER_BIT);
+        batch.begin();
+
+        drawBackground();
+
+        if (leftPanel != null)  leftPanel.render(batch, assets.spriteSheet);
+        if (rightPanel != null) rightPanel.render(batch, assets.spriteSheet);
+
+        if (boardPanel != null) {
+            boardPanel.setPieceToMove(pieceToMove);
+            boardPanel.setAvailableMoves(availableMoves); // pass the ready Set
+            boardPanel.render(batch, assets.spriteSheet);
+        }
+
+        if (promotionDialogVisible) {
+            drawPromotionDialog();
+        }
+
+        if (assets.gameFont != null) {
+            String message = "SHOGI";
+            int textWidth = assets.gameFont.getWidth(message);
+            batch.setColor(1f, 1f, 0f, 1f);
+            assets.gameFont.drawText(batch, message, (Display.getWidth() - textWidth) / 2, 50);
+            batch.setColor(1f, 1f, 1f, 1f);
+        }
+
+        batch.end();
+        Display.update();
+    }
+
+    // --- promotion dialog ---
+    public void showPromotionDialog() {
+        promotionDialogVisible = true;
+        promotionDialogChoice = null; // reset previous choice
+    }
+
+    public void hidePromotionDialog() {
+        promotionDialogVisible = false;
+        promotionDialogChoice = null;
+    }
+
+    // returns null until the player presses a button
+    public Boolean getPromotionDialogChoice() {
+        if (!promotionDialogVisible) return null;
+
+        if (Mouse.next()) {
+            if (Mouse.getEventButton() == 0 && Mouse.getEventButtonState()) {
+                int mouseX = Mouse.getX();
+                int mouseY = Display.getHeight() - Mouse.getY();
+
+                if (isInsideYesButton(mouseX, mouseY)) return true;
+                if (isInsideNoButton(mouseX, mouseY))  return false;
+            }
+        }
+
+        return null; // not yet pressed
+    }
+
+    private void drawPromotionDialog() {
+        int screenW = Display.getWidth();
+        int screenH = Display.getHeight();
+
+        // dialog background — screen center
+        int dialogW = 300;
+        int dialogH = 150;
+        int dialogX = (screenW - dialogW) / 2;
+        int dialogY = (screenH - dialogH) / 2;
+
+        // draw dialog panel using sprite from sheet
+        SpriteUtil.drawSprite(batch, assets.spriteSheet, 
+                              0, 3,                    // col, row on spritesheet for dialog background
+                              dialogX, dialogY, 
+                              dialogW, dialogH, 0f);
+
+        // YES button
+        SpriteUtil.drawSprite(batch, assets.spriteSheet, 
+                              1, 3,
+                              getYesButtonX(), getYesButtonY(), 
+                              100, 50, 0f);
+
+        // NO button
+        SpriteUtil.drawSprite(batch, assets.spriteSheet, 
+                              2, 3,
+                              getNoButtonX(), getNoButtonY(), 
+                              100, 50, 0f);
+
+        // text
+        if (assets.gameFont != null) {
+            assets.gameFont.drawText(batch, "Promote?", dialogX + 80, dialogY + 20);
+        }
+    }
+
+    // --- button coordinates (calculated from screen center) ---
+    private int getYesButtonX() { return Display.getWidth()  / 2 - 120; }
+    private int getYesButtonY() { return Display.getHeight() / 2 + 20;  }
+    private int getNoButtonX()  { return Display.getWidth()  / 2 + 20;  }
+    private int getNoButtonY()  { return Display.getHeight() / 2 + 20;  }
+
+    private boolean isInsideYesButton(int mouseX, int mouseY) {
+        return mouseX >= getYesButtonX() && mouseX <= getYesButtonX() + 100
+            && mouseY >= getYesButtonY() && mouseY <= getYesButtonY() + 50;
+    }
+
+    private boolean isInsideNoButton(int mouseX, int mouseY) {
+        return mouseX >= getNoButtonX() && mouseX <= getNoButtonX() + 100
+            && mouseY >= getNoButtonY() && mouseY <= getNoButtonY() + 50;
+    }
+
+    // --- click on hand ---
+    // returns piece type if clicked on hand, otherwise null
+    public PieceType getHandPieceFromMouse(Color color) {
+        int mouseX = Mouse.getX();
+        int mouseY = Display.getHeight() - Mouse.getY();
+
+        // delegate to the appropriate panel depending on color
+        // SENTE — left panel, GOTE — right panel (or vice versa, depending on your design)
+        if (color == Color.SENTE && leftPanel != null) {
+            return leftPanel.getHandPieceFromMouse(mouseX, mouseY);
+        }
+        if (color == Color.GOTE && rightPanel != null) {
+            return rightPanel.getHandPieceFromMouse(mouseX, mouseY);
+        }
+        return null;
     }
 }

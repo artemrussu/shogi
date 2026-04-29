@@ -5,12 +5,13 @@ import java.util.Set;
 
 import core.factory.BoardFEN;
 import model.Board;
+import model.Hand;
 import model.piece.Piece;
 import model.piece.impl.King;
 import view.console.ConsoleRenderer;
 
 /**
- * Utility class for handling user input via the console. Validates coordinate
+ * Utility class for handling user input. Validates coordinate
  * strings and move availability.
  */
 public class InputCoordinates {
@@ -18,8 +19,7 @@ public class InputCoordinates {
 	private static final Scanner scanner = new Scanner(System.in);
 
 	/**
-	 * Reads and validates a basic coordinate pair (e.g., "A1") from the console.
-	 * Continues prompting the user until a valid format is provided.
+	 * Reads and validates a basic coordinate pair.
 	 */
 	public static Coordinates input() {
 		while (true) {
@@ -111,13 +111,15 @@ public class InputCoordinates {
 	public static Move inputMove(Board board, Color color, ConsoleRenderer renderer) {
 		while (true) {
 			// input
-			Coordinates sourceCoordinates = InputCoordinates.inputPieceCoordinatesForColor(color, board);
+			Coordinates sourceCoordinates = InputCoordinates.
+					inputPieceCoordinatesForColor(color, board);
 
 			Piece piece = board.getPiece(sourceCoordinates);
 			Set<Coordinates> availableMoveSquares = piece.getAvailableMoveSquares(board);
 
 			renderer.render(board, piece);
-			Coordinates targetCoordinates = InputCoordinates.inputAvailableSquare(availableMoveSquares);
+			Coordinates targetCoordinates = InputCoordinates.
+					inputAvailableSquare(availableMoveSquares);
 
 			Move move = new Move(sourceCoordinates, targetCoordinates);
 
@@ -130,6 +132,9 @@ public class InputCoordinates {
 		}
 	}
 	
+	/**
+	 * PROMOTION
+	 */
 	public static boolean inputPromotionChoice() {
 	    while (true) {
 	        System.out.println("Promote piece? (y/n):");
@@ -141,8 +146,77 @@ public class InputCoordinates {
 	        System.out.println("Invalid input, enter y or n");
 	    }
 	}
+	
+	/********************************************
+	 * DROP
+	 */
+	// asks which piece to drop from hand
+	public static DropMove inputDropMove(Board board, Color color) {
+	    Hand hand = board.hand;
 
-	private static boolean validateIfKingInCheckAfterMove(Board board, Color color, Move move) {
+	    // show what is in hand
+	    System.out.println("Your hand:");
+	    for (PieceType type : hand.getHand(color).keySet()) {
+	        int count = hand.getHand(color).get(type);
+	        if (count > 0) {
+	            System.out.println("  " + type + " x" + count);
+	        }
+	    }
+
+	    while (true) {
+
+	        // choose piece
+	        System.out.println("Enter piece type to drop (e.g. PAWN):");
+	        String line = scanner.nextLine().trim().toUpperCase();
+
+	        PieceType type;
+	        try {
+	            type = PieceType.valueOf(line);
+	        } catch (IllegalArgumentException e) {
+	            System.out.println("Unknown piece type");
+	            continue;
+	        }
+
+	        if (!hand.has(color, type)) {
+	            System.out.println("You don't have this piece in hand");
+	            continue;
+	        }
+
+	        // choose square
+	        System.out.println("Enter square to drop on:");
+	        Coordinates target = input();
+
+	        DropMove drop = new DropMove(type, color, target);
+
+	        if (!DropValidator.isValidDrop(drop, board)) {
+	            System.out.println("Invalid drop");
+	            continue;
+	        }
+
+	        return drop;
+	    }
+	}
+
+	// asks: move a piece or drop?
+	public static boolean inputWantsDrop(Color color, Board board) {
+	    // if hand is empty, immediately return false
+	    if (board.hand.getHand(color).values().stream().allMatch(count -> count == 0)) {
+	        return false;
+	    }
+
+	    while (true) {
+	        System.out.println("Move piece (m) or drop from hand (d)?");
+	        String answer = scanner.nextLine().trim().toLowerCase();
+
+	        if (answer.equals("m")) return false;
+	        if (answer.equals("d")) return true;
+
+	        System.out.println("Enter m or d");
+	    }
+	}
+	/********************************************/
+
+	public static boolean validateIfKingInCheckAfterMove(Board board, Color color, Move move) {
 		Board copy = (new BoardFEN()).copy(board);
 		copy.makeMove(move);
 

@@ -1,13 +1,13 @@
 package view.gui.components;
 
+import core.PieceType;
 import mdesl.graphics.SpriteBatch;
 import mdesl.graphics.Texture;
 
 public class RightPanel extends UIComponent {
 
     public RightPanel(int x, int y, int width, int height) {
-        // Example: thickness = 50, Corner = (4, 2), Straight = (5, 2)
-        // (Replace these with your actual sprite indices from the sheet)
+        // thickness = 50, Corner = (4, 2), Straight = (5, 2)
         super(x, y, width, height, 50, 4, 2, 5, 2); 
     }
 
@@ -18,4 +18,9 @@ public class RightPanel extends UIComponent {
 
     @Override
     public void handleMouseClick(int mouseX, int mouseY) { }
+
+	public PieceType getHandPieceFromMouse(int mouseX, int mouseY) {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
