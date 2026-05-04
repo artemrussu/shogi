@@ -58,8 +58,11 @@ public class GraphicGame extends Game {
         while (Mouse.next()) {
             if (Mouse.getEventButton() == 0 && Mouse.getEventButtonState()) {
 
+                int mouseX = Mouse.getEventX();
+                int mouseY = Display.getHeight() - Mouse.getEventY();
+
                 if (pendingMove != null) {
-                    handlePromotionDialog();
+                    handlePromotionDialog(mouseX, mouseY);
                     continue;
                 }
 
@@ -88,6 +91,16 @@ public class GraphicGame extends Game {
                 }
             }
         }
+    }
+
+    private void handlePromotionDialog(int mouseX, int mouseY) {
+        Boolean choice = renderer.getPromotionDialogChoice(mouseX, mouseY);
+        if (choice == null) return;
+
+        Move finalMove = new Move(pendingMove.from, pendingMove.to, choice);
+        pendingMove = null;
+        renderer.hidePromotionDialog();
+        executeMove(finalMove);
     }
 
     private void selectPiece(Coordinates clickedCoords) {
@@ -150,16 +163,6 @@ public class GraphicGame extends Game {
 
         executeMove(drop);
         selectedHandPiece = null;
-    }
-
-    private void handlePromotionDialog() {
-        Boolean choice = renderer.getPromotionDialogChoice();
-        if (choice == null) return;
-
-        Move finalMove = new Move(pendingMove.from, pendingMove.to, choice);
-        pendingMove = null;
-        renderer.hidePromotionDialog();
-        executeMove(finalMove);
     }
 
     @Override
