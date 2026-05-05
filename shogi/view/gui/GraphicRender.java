@@ -78,14 +78,15 @@ public class GraphicRender {
         int screenW = Display.getWidth();
         int screenH = Display.getHeight();
 
-        int boardX  = (screenW - BOARD_PANEL_SIZE) / 2;
-        int boardY  = (screenH - BOARD_PANEL_SIZE) / 2;
-        int panelY  = (screenH - SIDE_PANEL_H)     / 2;
-        int rightX  = screenW - SIDE_PANEL_W - SIDE_PANEL_MARGIN;
+        int boardX = (screenW - BOARD_PANEL_SIZE) / 2;
+        int boardY = (screenH - BOARD_PANEL_SIZE) / 2;
+        int panelY = (screenH - SIDE_PANEL_H)     / 2;
+        int rightX = screenW - SIDE_PANEL_W - SIDE_PANEL_MARGIN;
 
-        boardPanel  = new BoardPanel(boardX, boardY, BOARD_PANEL_SIZE, BOARD_PANEL_SIZE, board);
-        leftPanel   = new LeftPanel(SIDE_PANEL_MARGIN, panelY, SIDE_PANEL_W, SIDE_PANEL_H);
-        rightPanel  = new RightPanel(rightX, panelY, SIDE_PANEL_W, SIDE_PANEL_H);
+        boardPanel = new BoardPanel(boardX, boardY, BOARD_PANEL_SIZE, BOARD_PANEL_SIZE, board);
+        leftPanel  = new LeftPanel(SIDE_PANEL_MARGIN, panelY, SIDE_PANEL_W, SIDE_PANEL_H,
+                                   board, assets.gameFont);  // передаём board и font
+        rightPanel = new RightPanel(rightX, panelY, SIDE_PANEL_W, SIDE_PANEL_H);
     }
 
     // -------------------------------------------------------------------------
@@ -157,12 +158,10 @@ public class GraphicRender {
     }
 
     public PieceType getHandPieceFromMouse(Color color) {
+        if (leftPanel == null) return null;
         int mouseX = Mouse.getX();
         int mouseY = Display.getHeight() - Mouse.getY();
-
-        if (color == Color.SENTE && leftPanel  != null) return leftPanel.getHandPieceFromMouse(mouseX, mouseY);
-        if (color == Color.GOTE  && rightPanel != null) return rightPanel.getHandPieceFromMouse(mouseX, mouseY);
-        return null;
+        return leftPanel.getHandPieceFromMouse(mouseX, mouseY, color);
     }
 
     public void processEvents() {

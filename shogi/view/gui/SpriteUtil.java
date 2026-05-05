@@ -1,6 +1,7 @@
 package view.gui;
 
 import core.Color;
+import core.PieceType;
 import mdesl.graphics.SpriteBatch;
 import mdesl.graphics.Texture;
 import model.piece.Piece;
@@ -21,25 +22,48 @@ public class SpriteUtil {
 
         batch.draw(spriteSheet, x, y, width, height, width / 2f, height / 2f, rotationRadians, u, v, u2, v2);
     }
+    
+    public static void drawPiece(SpriteBatch batch, Texture sheet, Piece piece, float x, float y, float size) {
+        int col = getPieceCol(piece.getPieceType());
+        int row = getPieceRow(piece.getPieceType());
+        float rotation = (piece.getColor() == Color.SENTE) ? 180f : 0f;
+        drawSprite(batch, sheet, col, row, x, y, size, size, rotation);
+    }
 
     /**
      * Maps piece type to sprite sheet coordinates and draws it.
      */
-    public static void drawPiece(SpriteBatch batch, Texture sheet, Piece piece, float x, float y, float size) {
-        int col = 0; int row = 0; 
-
-        switch (piece.getPieceType()) {
-        case PAWN:   col = 7; row = 0; break; 		case TOKIN:				col = 0; row = 2; break;
-        case LANCE:  col = 2; row = 0; break;		case PROMOTED_LANCE:  	col = 3; row = 1; break;
-        case KNIGHT: col = 3; row = 0; break;		case PROMOTED_KNIGHT: 	col = 4; row = 1; break;
-        case SILVER: col = 4; row = 0; break;		case PROMOTED_SILVER: 	col = 7; row = 1; break;
-        case GOLD:   col = 5; row = 0; break;
-        case KING:   col = 6; row = 0; break;
-        case ROOK:   col = 0; row = 1; break;		case DRAGON: 			col = 6; row = 1; break;
-        case BISHOP: col = 1; row = 1; break;		case HORSE: 				col = 5; row = 1; break;
+    public static int getPieceCol(PieceType type) {
+        switch (type) {
+            case PAWN:            return 7;
+            case LANCE:           return 2;
+            case KNIGHT:          return 3;
+            case SILVER:          return 4;
+            case GOLD:            return 5;
+            case KING:            return 6;
+            case ROOK:            return 0;
+            case BISHOP:          return 1;
+            case TOKIN:           return 0;
+            case PROMOTED_LANCE:  return 3;
+            case PROMOTED_KNIGHT: return 4;
+            case PROMOTED_SILVER: return 7;
+            case DRAGON:          return 6;
+            case HORSE:           return 5;
+            default:              return 0;
+        }
     }
 
-        float rotation = (piece.getColor() == Color.SENTE) ? 180f : 0f;
-        drawSprite(batch, sheet, col, row, x, y, size, size, rotation);
+    public static int getPieceRow(PieceType type) {
+        switch (type) {
+            case ROOK:            return 1;
+            case BISHOP:          return 1;
+            case DRAGON:          return 1;
+            case HORSE:           return 1;
+            case PROMOTED_LANCE:  return 1;
+            case PROMOTED_KNIGHT: return 1;
+            case PROMOTED_SILVER: return 1;
+            case TOKIN:           return 2;
+            default:              return 0;
+        }
     }
 }
