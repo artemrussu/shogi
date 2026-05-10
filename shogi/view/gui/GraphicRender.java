@@ -42,6 +42,13 @@ public class GraphicRender {
     private LeftPanel       leftPanel;
     private RightPanel      rightPanel;
     private PromotionDialog promotionDialog = new PromotionDialog();
+    
+    // --- color (red) ---
+    private static final float TEXT_R = 0.424f;
+    private static final float TEXT_G = 0.161f;
+    private static final float TEXT_B = 0.251f;
+    
+    private final ScreenMessage screenMessage = new ScreenMessage();
 
     // -------------------------------------------------------------------------
 
@@ -85,13 +92,14 @@ public class GraphicRender {
 
         boardPanel = new BoardPanel(boardX, boardY, BOARD_PANEL_SIZE, BOARD_PANEL_SIZE, board);
         leftPanel  = new LeftPanel(SIDE_PANEL_MARGIN, panelY, SIDE_PANEL_W, SIDE_PANEL_H,
-                                   board, assets.gameFont);  // передаём board и font
+                                   board, assets.gameFont);
         rightPanel = new RightPanel(rightX, panelY, SIDE_PANEL_W, SIDE_PANEL_H);
     }
 
     // -------------------------------------------------------------------------
 
-    public void render(Board board, Piece selectedPiece, Set<Coordinates> availableMoves) {
+    public void render(Board board, Piece selectedPiece, 
+    						Set<Coordinates> availableMoves, Color currentTurn) {
         if (assets == null || assets.spriteSheet == null || batch == null) return;
 
         glClear(GL_COLOR_BUFFER_BIT);
@@ -99,8 +107,9 @@ public class GraphicRender {
 
         drawBackground();
         drawPanels(selectedPiece, availableMoves);
-        drawTitle();
+        drawTitle(currentTurn);
         promotionDialog.render(batch, assets.spriteSheet, assets.gameFont);
+        drawMessage();
 
         batch.end();
         Display.update();
@@ -129,14 +138,27 @@ public class GraphicRender {
         }
     }
 
-    private void drawTitle() {
+    private void drawTitle(Color currentTurn) {
         if (assets.gameFont == null) return;
 
-        String message  = "SHOGI";
-        int textWidth   = assets.gameFont.getWidth(message);
+        String message = (currentTurn == Color.SENTE) ? "SENTE" : "GOTE";
+        int textWidth  = assets.gameFont.getWidth(message);
 
-        batch.setColor(1f, 1f, 0f, 1f);
+        batch.setColor(TEXT_R, TEXT_G, TEXT_B, 1f);
         assets.gameFont.drawText(batch, message, (Display.getWidth() - textWidth) / 2, 50);
+        batch.setColor(1f, 1f, 1f, 1f);
+    }
+    
+    private void drawMessage() {
+        if (!screenMessage.isVisible() || assets.gameFont == null) return;
+
+        String text   = screenMessage.getText();
+        int textWidth = assets.gameFont.getWidth(text);
+        int textX     = (Display.getWidth()  - textWidth) / 2;
+        int textY     = (Display.getHeight() - 40)        / 2;
+
+        batch.setColor(TEXT_R, TEXT_G, TEXT_B, 1f);
+        assets.gameFont.drawText(batch, text, textX, textY);
         batch.setColor(1f, 1f, 1f, 1f);
     }
 
@@ -167,4 +189,12 @@ public class GraphicRender {
     public void processEvents() {
         Display.processMessages();
     }
+
+
+    // -------------------------------------------------------------------------
+    
+	public void showMessage(String text)          { screenMessage.show(text); }
+	public void showPermanentMessage(String text) { screenMessage.showPermanent(text); }
+	public void clearMessage()                    { screenMessage.clear(); }
+
 }

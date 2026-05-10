@@ -45,7 +45,7 @@ public class GraphicGame extends Game {
             if (currentGameState == GameState.ONGOING) handleInput();
 
             Piece selectedPiece = (selectedSquare != null) ? board.getPiece(selectedSquare) : null;
-            renderer.render(board, selectedPiece, availableMoves);
+            renderer.render(board, selectedPiece, availableMoves, currentTurn);
             renderer.processEvents();
             Display.sync(60);
         }
@@ -132,7 +132,7 @@ public class GraphicGame extends Game {
         Move move = new Move(selectedSquare, clickedCoords);
 
         if (InputCoordinates.validateIfKingInCheckAfterMove(board, currentTurn, move)) {
-            System.out.println("Invalid move: king is under attack!");
+        		renderer.showMessage("Invalid move: king is under attack!");
             selectedSquare = null;
             availableMoves = Set.of();
             return;
@@ -156,7 +156,7 @@ public class GraphicGame extends Game {
         DropMove drop = new DropMove(selectedHandPiece, currentTurn, target);
 
         if (!DropValidator.isValidDrop(drop, board)) {
-            System.out.println("Invalid drop");
+        		renderer.showMessage("Invalid drop!");
             selectedHandPiece = null;
             return;
         }
@@ -170,5 +170,9 @@ public class GraphicGame extends Game {
         super.executeMove(move);
         availableMoves = Set.of();
         selectedSquare = null;
+
+        if (currentGameState != GameState.ONGOING) {
+            renderer.showPermanentMessage(currentGameState.toString());
+        }
     }
 }
