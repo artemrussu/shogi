@@ -91,8 +91,8 @@ public class GraphicRender {
         int rightX = screenW - SIDE_PANEL_W - SIDE_PANEL_MARGIN;
 
         boardPanel = new BoardPanel(boardX, boardY, BOARD_PANEL_SIZE, BOARD_PANEL_SIZE, board);
-        leftPanel  = new LeftPanel(SIDE_PANEL_MARGIN, panelY, SIDE_PANEL_W, SIDE_PANEL_H,
-                                   board, assets.gameFont);
+        leftPanel = new LeftPanel(SIDE_PANEL_MARGIN, panelY, SIDE_PANEL_W, SIDE_PANEL_H,
+                					board, assets);
         rightPanel = new RightPanel(rightX, panelY, SIDE_PANEL_W, SIDE_PANEL_H);
     }
 

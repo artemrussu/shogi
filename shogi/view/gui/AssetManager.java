@@ -22,6 +22,11 @@ public class AssetManager {
             // Load Font
             URL fontDef = getClass().getClassLoader().getResource("wide-latin.fnt");
             URL fontTex = getClass().getClassLoader().getResource("wide-latin_0.png");
+            
+            System.out.println("tex:  " + texUrl);
+            System.out.println("fnt:  " + fontDef);
+            System.out.println("png:  " + fontTex);
+            
             if (fontDef != null && fontTex != null) {
                 gameFont = new BitmapFont(fontDef, fontTex);
             }

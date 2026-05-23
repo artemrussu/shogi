@@ -69,8 +69,8 @@ public class GraphicGame extends Game {
                 PieceType handPiece = renderer.getHandPieceFromMouse(currentTurn);
                 if (handPiece != null) {
                     selectedHandPiece = handPiece;
-                    selectedSquare = null;
-                    availableMoves = Set.of();
+                    selectedSquare    = null;
+                    availableMoves    = DropValidator.getValidDropSquares(handPiece, currentTurn, board); // <- это должно быть
                     continue;
                 }
 

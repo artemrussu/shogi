@@ -9,6 +9,7 @@ import mdesl.graphics.SpriteBatch;
 import mdesl.graphics.Texture;
 import mdesl.graphics.text.BitmapFont;
 import model.Board;
+import view.gui.AssetManager;
 import view.gui.SpriteUtil;
 
 public class LeftPanel extends UIComponent {
@@ -30,11 +31,12 @@ public class LeftPanel extends UIComponent {
 
     private final Board board;
     private BitmapFont font;
+    private final AssetManager assets;
 
-    public LeftPanel(int x, int y, int width, int height, Board board, BitmapFont font) {
+    public LeftPanel(int x, int y, int width, int height, Board board, AssetManager assets) {
         super(x, y, width, height, 50, 4, 2, 5, 2);
-        this.board = board;
-        this.font  = font;
+        this.board  = board;
+        this.assets = assets;
     }
 
     @Override
@@ -62,6 +64,7 @@ public class LeftPanel extends UIComponent {
     }
 
     private void drawHand(SpriteBatch batch, Texture sheet, Color color, int startY) {
+
         int drawX = x + frameThickness + SECTION_PAD;
         int drawY = startY;
 
@@ -78,18 +81,30 @@ public class LeftPanel extends UIComponent {
                         drawX, drawY, PIECE_SIZE, PIECE_SIZE, rotation);
             }
 
-            if (font != null) {
-                String countText = String.valueOf(count);
-                int textX = drawX + PIECE_SIZE - font.getWidth(countText) - 4;
-                int textY = drawY + PIECE_SIZE - 20;
+            drawX += PIECE_SIZE + PIECE_MARGIN;
+            if (drawX + PIECE_SIZE > x + width - frameThickness - SECTION_PAD) {
+                drawX  = x + frameThickness + SECTION_PAD;
+                drawY += PIECE_SIZE + PIECE_MARGIN;
+            }
+        }
+
+        drawX = x + frameThickness + SECTION_PAD;
+        drawY = startY;
+
+        for (PieceType type : HAND_ORDER) {
+            int count = board.hand.getHand(color).getOrDefault(type, 0);
+
+            if (assets.gameFont != null) {
+                String text  = String.valueOf(count);
+                int    textX = drawX + PIECE_SIZE - assets.gameFont.getWidth(text) - 4;
+                int    textY = drawY + PIECE_SIZE - 20;
 
                 batch.setColor(0.424f, 0.161f, 0.251f, 1f);
-                font.drawText(batch, countText, textX, textY);
+                assets.gameFont.drawText(batch, text, textX, textY);
                 batch.setColor(1f, 1f, 1f, 1f);
             }
 
             drawX += PIECE_SIZE + PIECE_MARGIN;
-
             if (drawX + PIECE_SIZE > x + width - frameThickness - SECTION_PAD) {
                 drawX  = x + frameThickness + SECTION_PAD;
                 drawY += PIECE_SIZE + PIECE_MARGIN;

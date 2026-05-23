@@ -1,5 +1,8 @@
 package core;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import model.Board;
 import model.piece.Piece;
 import model.piece.impl.Pawn;
@@ -34,5 +37,21 @@ public class DropValidator {
         }
 
         return true;
+    }
+    
+    public static Set<Coordinates> getValidDropSquares(PieceType type, Color color, Board board) {
+        Set<Coordinates> result = new HashSet<>();
+
+        for (File file : File.values()) {
+            for (int rank = 1; rank <= 9; rank++) {
+                Coordinates coords = new Coordinates(file, rank);
+                DropMove drop = new DropMove(type, color, coords);
+                if (isValidDrop(drop, board)) {
+                    result.add(coords);
+                }
+            }
+        }
+
+        return result;
     }
 }
