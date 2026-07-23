@@ -66,6 +66,7 @@ public class GraphicRender {
     }
 
     private void initDisplay() throws LWJGLException {
+        if (Display.isCreated()) return;
         Display.setDisplayMode(Display.getDesktopDisplayMode());
         Display.setFullscreen(true);
         Display.setTitle("Shogi Game");
