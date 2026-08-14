@@ -190,6 +190,11 @@ public class GraphicRender {
     public void processEvents() {
         Display.processMessages();
     }
+    
+    public void setPerspective(BoardPerspective perspective) {
+        if (boardPanel != null) boardPanel.setPerspective(perspective);
+        if (leftPanel  != null) leftPanel.setPerspective(perspective);
+    }
 
 
     // -------------------------------------------------------------------------

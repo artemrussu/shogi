@@ -10,6 +10,7 @@ import mdesl.graphics.Texture;
 import mdesl.graphics.text.BitmapFont;
 import model.Board;
 import view.gui.AssetManager;
+import view.gui.BoardPerspective;
 import view.gui.SpriteUtil;
 
 public class LeftPanel extends UIComponent {
@@ -32,6 +33,11 @@ public class LeftPanel extends UIComponent {
     private final Board board;
     private BitmapFont font;
     private final AssetManager assets;
+    private BoardPerspective perspective = new BoardPerspective(Color.GOTE);
+    
+    public void setPerspective(BoardPerspective perspective) {
+        this.perspective = perspective;
+    }
 
     public LeftPanel(int x, int y, int width, int height, Board board, AssetManager assets) {
         super(x, y, width, height, 50, 4, 2, 5, 2);
@@ -75,7 +81,7 @@ public class LeftPanel extends UIComponent {
                                   drawX, drawY, PIECE_SIZE, PIECE_SIZE, 0f);
 
             if (count > 0) {
-                float rotation = (color == Color.SENTE) ? 180f : 0f;
+            	float rotation = (color == perspective.getBottomPlayer()) ? 0f : 180f;
                 SpriteUtil.drawSprite(batch, sheet,
                         SpriteUtil.getPieceCol(type), SpriteUtil.getPieceRow(type),
                         drawX, drawY, PIECE_SIZE, PIECE_SIZE, rotation);

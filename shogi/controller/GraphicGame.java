@@ -12,9 +12,11 @@ import core.DropValidator;
 import core.InputCoordinates;
 import core.Move;
 import core.PieceType;
+import menu.GameConfig;
 import model.Board;
 import model.piece.Piece;
 import view.gui.AssetManager;
+import view.gui.BoardPerspective;
 import view.gui.GraphicRender;
 
 public class GraphicGame extends Game {
@@ -26,9 +28,21 @@ public class GraphicGame extends Game {
     private Move pendingMove = null;
     private PieceType selectedHandPiece = null;
     private Set<Coordinates> availableMoves = Set.of();
+    
+    private final BoardPerspective initialPerspective;
+    private final boolean          rotatePerspective;
 
-    public GraphicGame(Board board) {
+    public GraphicGame(Board board, GameConfig config) {
         super(board);
+        this.rotatePerspective = (config.mode == GameConfig.Mode.VS_HUMAN);
+
+        if (rotatePerspective) {
+            // local 2-player: SENTE always starts at bottom — SENTE moves first
+            this.initialPerspective = new BoardPerspective(Color.SENTE);
+        } else {
+            // vs AI: player's chosen color stays at bottom always
+            this.initialPerspective = new BoardPerspective(config.playerColor);
+        }
     }
 
     @Override
@@ -39,6 +53,8 @@ public class GraphicGame extends Game {
             return;
         }
 
+        renderer.setPerspective(initialPerspective);
+        
         currentGameState = determineGameState(board, currentTurn);
 
         while (!Display.isCloseRequested()) {
@@ -167,12 +183,12 @@ public class GraphicGame extends Game {
 
     @Override
     protected void executeMove(Move move) {
-        super.executeMove(move);
+        super.executeMove(move);      // currentTurn switches here
         availableMoves = Set.of();
         selectedSquare = null;
 
-        if (currentGameState != GameState.ONGOING) {
-            renderer.showPermanentMessage(currentGameState.toString());
+        if (rotatePerspective) {
+            renderer.setPerspective(new BoardPerspective(currentTurn)); // next player at bottom
         }
     }
 }

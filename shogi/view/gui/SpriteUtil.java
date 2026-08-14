@@ -23,11 +23,12 @@ public class SpriteUtil {
         batch.draw(spriteSheet, x, y, width, height, width / 2f, height / 2f, rotationRadians, u, v, u2, v2);
     }
     
-    public static void drawPiece(SpriteBatch batch, Texture sheet, Piece piece, float x, float y, float size) {
-        int col = getPieceCol(piece.getPieceType());
-        int row = getPieceRow(piece.getPieceType());
-        float rotation = (piece.getColor() == Color.SENTE) ? 180f : 0f;
-        drawSprite(batch, sheet, col, row, x, y, size, size, rotation);
+    public static void drawPiece(SpriteBatch batch, Texture sheet, Piece piece,
+            float x, float y, float size, Color bottomPlayer) {
+    		int col = getPieceCol(piece.getPieceType());
+    		int row = getPieceRow(piece.getPieceType());
+    		float rotation = (piece.getColor() == bottomPlayer) ? 0f : 180f;
+    		drawSprite(batch, sheet, col, row, x, y, size, size, rotation);
     }
 
     /**
