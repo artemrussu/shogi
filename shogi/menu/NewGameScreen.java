@@ -5,6 +5,7 @@ import org.lwjgl.opengl.Display;
 import core.Color;
 import mdesl.graphics.SpriteBatch;
 import view.gui.AssetManager;
+import view.gui.ScaleManager;
 
 public class NewGameScreen extends Screen {
 
@@ -20,8 +21,8 @@ public class NewGameScreen extends Screen {
     private final MenuButton btnStart;
     private final MenuButton btnBack;
 
-    public NewGameScreen(SpriteBatch batch, AssetManager assets, GameConfig.Mode mode) {
-        super(batch, assets);
+    public NewGameScreen(SpriteBatch batch, AssetManager assets, ScaleManager scale, GameConfig.Mode mode) {
+        super(batch, assets, scale);
         this.mode = mode;
 
         int cx     = (Display.getWidth()  - BTN_W) / 2;
@@ -49,9 +50,9 @@ public class NewGameScreen extends Screen {
                     if (btnGote.isHovered(ex, ey))  selectedColor = Color.GOTE;
 
                     if (btnStart.isHovered(ex, ey))
-                        return new GameStartScreen(batch, assets, new GameConfig(mode, selectedColor));
+                        return new GameStartScreen(batch, assets, new GameConfig(mode, selectedColor), scale);
                     if (btnBack.isHovered(ex, ey))
-                        return new MainMenuScreen(batch, assets);
+                        return new MainMenuScreen(batch, assets, scale);
                 }
             }
 

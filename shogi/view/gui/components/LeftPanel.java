@@ -11,162 +11,160 @@ import mdesl.graphics.text.BitmapFont;
 import model.Board;
 import view.gui.AssetManager;
 import view.gui.BoardPerspective;
+import view.gui.ScaleManager;
 import view.gui.SpriteUtil;
 
 public class LeftPanel extends UIComponent {
 
-    private static final int PIECE_SIZE    = 75;
-    private static final int PIECE_MARGIN  = 10;
-    private static final int SECTION_PAD   = 35;
-    
-    private static final int BACKGROUND_COL = 1;
-    private static final int BACKGROUND_ROW = 0;
-    private static final int EMPTY_SLOT_COL = 7;
-    private static final int EMPTY_SLOT_ROW = 2;
+	private final int PIECE_SIZE;
+	private final int PIECE_MARGIN;
+	private final int SECTION_PAD;
 
-    private static final PieceType[] HAND_ORDER = {
-        PieceType.ROOK, PieceType.BISHOP,
-        PieceType.GOLD, PieceType.SILVER,
-        PieceType.KNIGHT, PieceType.LANCE, PieceType.PAWN
-    };
+	private static final int BACKGROUND_COL = 1;
+	private static final int BACKGROUND_ROW = 0;
+	private static final int EMPTY_SLOT_COL = 7;
+	private static final int EMPTY_SLOT_ROW = 2;
 
-    private final Board board;
-    private BitmapFont font;
-    private final AssetManager assets;
-    private BoardPerspective perspective = new BoardPerspective(Color.GOTE);
-    
-    public void setPerspective(BoardPerspective perspective) {
-        this.perspective = perspective;
-    }
+	private static final PieceType[] HAND_ORDER = { PieceType.ROOK, PieceType.BISHOP, PieceType.GOLD, PieceType.SILVER,
+			PieceType.KNIGHT, PieceType.LANCE, PieceType.PAWN };
 
-    public LeftPanel(int x, int y, int width, int height, Board board, AssetManager assets) {
-        super(x, y, width, height, 50, 4, 2, 5, 2);
-        this.board  = board;
-        this.assets = assets;
-    }
+	private final Board board;
+	private BitmapFont font;
+	private final AssetManager assets;
+	private BoardPerspective perspective = new BoardPerspective(Color.GOTE);
 
-    @Override
-    public void render(SpriteBatch batch, Texture spriteSheet) {
-        drawBackground(batch, spriteSheet);
-        drawFrame(batch, spriteSheet);
-        drawHand(batch, spriteSheet, Color.SENTE, getSenteStartY());
-        drawHand(batch, spriteSheet, Color.GOTE,  getGoteStartY());
-    }
-    
-    private void drawBackground(SpriteBatch batch, Texture sheet) {
-        int tileSize = frameThickness;
-        int innerX = x + frameThickness;
-        int innerY = y + frameThickness;
-        int innerW = width  - frameThickness * 2;
-        int innerH = height - frameThickness * 2;
+	public void setPerspective(BoardPerspective perspective) {
+		this.perspective = perspective;
+	}
 
-        for (int px = innerX; px < innerX + innerW; px += tileSize) {
-            for (int py = innerY; py < innerY + innerH; py += tileSize) {
-                SpriteUtil.drawSprite(batch, sheet,
-                        BACKGROUND_COL, BACKGROUND_ROW,
-                        px, py, tileSize, tileSize, 0f);
-            }
-        }
-    }
+	public LeftPanel(int x, int y, int width, int height, Board board, AssetManager assets, ScaleManager scale) {
+		super(x, y, width, height, scale.s(50), 4, 2, 5, 2);
+		this.board = board;
+		this.assets = assets;
+		this.PIECE_SIZE = scale.s(75);
+		this.PIECE_MARGIN = scale.s(10);
+		this.SECTION_PAD = scale.s(35);
+	}
 
-    private void drawHand(SpriteBatch batch, Texture sheet, Color color, int startY) {
+	@Override
+	public void render(SpriteBatch batch, Texture spriteSheet) {
+		drawBackground(batch, spriteSheet);
+		drawFrame(batch, spriteSheet);
+		drawHand(batch, spriteSheet, Color.SENTE, getSenteStartY());
+		drawHand(batch, spriteSheet, Color.GOTE, getGoteStartY());
+	}
 
-        int drawX = x + frameThickness + SECTION_PAD;
-        int drawY = startY;
+	private void drawBackground(SpriteBatch batch, Texture sheet) {
+		int tileSize = frameThickness;
+		int innerX = x + frameThickness;
+		int innerY = y + frameThickness;
+		int innerW = width - frameThickness * 2;
+		int innerH = height - frameThickness * 2;
 
-        for (PieceType type : HAND_ORDER) {
-            int count = board.hand.getHand(color).getOrDefault(type, 0);
+		for (int px = innerX; px < innerX + innerW; px += tileSize) {
+			for (int py = innerY; py < innerY + innerH; py += tileSize) {
+				SpriteUtil.drawSprite(batch, sheet, BACKGROUND_COL, BACKGROUND_ROW, px, py, tileSize, tileSize, 0f);
+			}
+		}
+	}
 
-            SpriteUtil.drawSprite(batch, sheet, EMPTY_SLOT_COL, EMPTY_SLOT_ROW,
-                                  drawX, drawY, PIECE_SIZE, PIECE_SIZE, 0f);
+	private void drawHand(SpriteBatch batch, Texture sheet, Color color, int startY) {
 
-            if (count > 0) {
-            	float rotation = (color == perspective.getBottomPlayer()) ? 0f : 180f;
-                SpriteUtil.drawSprite(batch, sheet,
-                        SpriteUtil.getPieceCol(type), SpriteUtil.getPieceRow(type),
-                        drawX, drawY, PIECE_SIZE, PIECE_SIZE, rotation);
-            }
+		int drawX = x + frameThickness + SECTION_PAD;
+		int drawY = startY;
 
-            drawX += PIECE_SIZE + PIECE_MARGIN;
-            if (drawX + PIECE_SIZE > x + width - frameThickness - SECTION_PAD) {
-                drawX  = x + frameThickness + SECTION_PAD;
-                drawY += PIECE_SIZE + PIECE_MARGIN;
-            }
-        }
+		for (PieceType type : HAND_ORDER) {
+			int count = board.hand.getHand(color).getOrDefault(type, 0);
 
-        drawX = x + frameThickness + SECTION_PAD;
-        drawY = startY;
+			SpriteUtil.drawSprite(batch, sheet, EMPTY_SLOT_COL, EMPTY_SLOT_ROW, drawX, drawY, PIECE_SIZE, PIECE_SIZE,
+					0f);
 
-        for (PieceType type : HAND_ORDER) {
-            int count = board.hand.getHand(color).getOrDefault(type, 0);
+			if (count > 0) {
+				float rotation = (color == perspective.getBottomPlayer()) ? 0f : 180f;
+				SpriteUtil.drawSprite(batch, sheet, SpriteUtil.getPieceCol(type), SpriteUtil.getPieceRow(type), drawX,
+						drawY, PIECE_SIZE, PIECE_SIZE, rotation);
+			}
 
-            if (assets.gameFont != null) {
-                String text  = String.valueOf(count);
-                int    textX = drawX + PIECE_SIZE - assets.gameFont.getWidth(text) - 4;
-                int    textY = drawY + PIECE_SIZE - 20;
+			drawX += PIECE_SIZE + PIECE_MARGIN;
+			if (drawX + PIECE_SIZE > x + width - frameThickness - SECTION_PAD) {
+				drawX = x + frameThickness + SECTION_PAD;
+				drawY += PIECE_SIZE + PIECE_MARGIN;
+			}
+		}
 
-                batch.setColor(0.424f, 0.161f, 0.251f, 1f);
-                assets.gameFont.drawText(batch, text, textX, textY);
-                batch.setColor(1f, 1f, 1f, 1f);
-            }
+		drawX = x + frameThickness + SECTION_PAD;
+		drawY = startY;
 
-            drawX += PIECE_SIZE + PIECE_MARGIN;
-            if (drawX + PIECE_SIZE > x + width - frameThickness - SECTION_PAD) {
-                drawX  = x + frameThickness + SECTION_PAD;
-                drawY += PIECE_SIZE + PIECE_MARGIN;
-            }
-        }
-    }
+		for (PieceType type : HAND_ORDER) {
+			int count = board.hand.getHand(color).getOrDefault(type, 0);
 
-    public PieceType getHandPieceFromMouse(int mouseX, int mouseY) {
-        PieceType result = getClickedPiece(mouseX, mouseY, Color.SENTE, getSenteStartY());
-        if (result != null) return result;
-        return getClickedPiece(mouseX, mouseY, Color.GOTE, getGoteStartY());
-    }
+			if (assets.gameFont != null) {
+				String text = String.valueOf(count);
+				int textX = drawX + PIECE_SIZE - assets.gameFont.getWidth(text) - 4;
+				int textY = drawY + PIECE_SIZE - 20;
 
-    private PieceType getClickedPiece(int mouseX, int mouseY, Color color, int startY) {
-        int drawX = x + frameThickness + SECTION_PAD;
-        int drawY = startY;
+				batch.setColor(0.424f, 0.161f, 0.251f, 1f);
+				assets.gameFont.drawText(batch, text, textX, textY);
+				batch.setColor(1f, 1f, 1f, 1f);
+			}
 
-        for (PieceType type : HAND_ORDER) {
-            int count = board.hand.getHand(color).getOrDefault(type, 0);
+			drawX += PIECE_SIZE + PIECE_MARGIN;
+			if (drawX + PIECE_SIZE > x + width - frameThickness - SECTION_PAD) {
+				drawX = x + frameThickness + SECTION_PAD;
+				drawY += PIECE_SIZE + PIECE_MARGIN;
+			}
+		}
+	}
 
-            if (count > 0
-             && mouseX >= drawX && mouseX <= drawX + PIECE_SIZE
-             && mouseY >= drawY && mouseY <= drawY + PIECE_SIZE) {
-                return type;
-            }
+	public PieceType getHandPieceFromMouse(int mouseX, int mouseY) {
+		PieceType result = getClickedPiece(mouseX, mouseY, Color.SENTE, getSenteStartY());
+		if (result != null)
+			return result;
+		return getClickedPiece(mouseX, mouseY, Color.GOTE, getGoteStartY());
+	}
 
-            drawX += PIECE_SIZE + PIECE_MARGIN;
+	private PieceType getClickedPiece(int mouseX, int mouseY, Color color, int startY) {
+		int drawX = x + frameThickness + SECTION_PAD;
+		int drawY = startY;
 
-            if (drawX + PIECE_SIZE > x + width - frameThickness - SECTION_PAD) {
-                drawX  = x + frameThickness + SECTION_PAD;
-                drawY += PIECE_SIZE + PIECE_MARGIN;
-            }
-        }
+		for (PieceType type : HAND_ORDER) {
+			int count = board.hand.getHand(color).getOrDefault(type, 0);
 
-        return null;
-    }
+			if (count > 0 && mouseX >= drawX && mouseX <= drawX + PIECE_SIZE && mouseY >= drawY
+					&& mouseY <= drawY + PIECE_SIZE) {
+				return type;
+			}
 
-    private List<PieceType> getPiecesInHand(Color color) {
-        List<PieceType> result = new ArrayList<>();
-        for (PieceType type : HAND_ORDER) {
-            if (board.hand.getHand(color).getOrDefault(type, 0) > 0) {
-                result.add(type);
-            }
-        }
-        return result;
-    }
+			drawX += PIECE_SIZE + PIECE_MARGIN;
 
-    private int getSenteStartY() {
-        return y + frameThickness + SECTION_PAD;
-    }
+			if (drawX + PIECE_SIZE > x + width - frameThickness - SECTION_PAD) {
+				drawX = x + frameThickness + SECTION_PAD;
+				drawY += PIECE_SIZE + PIECE_MARGIN;
+			}
+		}
 
-    private int getGoteStartY() {
-        return y + height / 2 + SECTION_PAD;
-    }
+		return null;
+	}
 
-    // from SpriteUtil
+	private List<PieceType> getPiecesInHand(Color color) {
+		List<PieceType> result = new ArrayList<>();
+		for (PieceType type : HAND_ORDER) {
+			if (board.hand.getHand(color).getOrDefault(type, 0) > 0) {
+				result.add(type);
+			}
+		}
+		return result;
+	}
+
+	private int getSenteStartY() {
+		return y + frameThickness + SECTION_PAD;
+	}
+
+	private int getGoteStartY() {
+		return y + height / 2 + SECTION_PAD;
+	}
+
+	// from SpriteUtil
 //    private int getSpriteCol(PieceType type) {
 //        switch (type) {
 //            case PAWN:   return 7;
@@ -187,12 +185,13 @@ public class LeftPanel extends UIComponent {
 //            default:     return 0;
 //        }
 //    }
-    
-    public PieceType getHandPieceFromMouse(int mouseX, int mouseY, Color currentTurn) {
-        return getClickedPiece(mouseX, mouseY, currentTurn,
-               currentTurn == Color.SENTE ? getSenteStartY() : getGoteStartY());
-    }
 
-    @Override
-    public void handleMouseClick(int mouseX, int mouseY) { }
+	public PieceType getHandPieceFromMouse(int mouseX, int mouseY, Color currentTurn) {
+		return getClickedPiece(mouseX, mouseY, currentTurn,
+				currentTurn == Color.SENTE ? getSenteStartY() : getGoteStartY());
+	}
+
+	@Override
+	public void handleMouseClick(int mouseX, int mouseY) {
+	}
 }

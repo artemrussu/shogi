@@ -21,12 +21,12 @@ import view.gui.components.RightPanel;
 public class GraphicRender {
 
     // --- layout constants ---
-    private static final int TILE_SIZE         = 75;
-    private static final int FRAME_SIZE        = 75;
-    private static final int BOARD_PANEL_SIZE  = 9 * TILE_SIZE + FRAME_SIZE * 2;
-    private static final int SIDE_PANEL_W      = 500;
-    private static final int SIDE_PANEL_H      = 950;
-    private static final int SIDE_PANEL_MARGIN = 30;
+	private static final int BASE_TILE_SIZE        = 75;
+	private static final int BASE_FRAME_SIZE       = 75;
+	private static final int BASE_SIDE_PANEL_W     = 500;
+	private static final int BASE_SIDE_PANEL_H     = 950;
+	private static final int BASE_SIDE_PANEL_MARGIN = 30;
+	private static final int BASE_BG_TILE_SIZE     = 256;
 
     // --- background ---
     private static final int BG_COL       = 3;
@@ -49,6 +49,8 @@ public class GraphicRender {
     private static final float TEXT_B = 0.251f;
     
     private final ScreenMessage screenMessage = new ScreenMessage();
+    
+    private ScaleManager scale;
 
     // -------------------------------------------------------------------------
 
@@ -83,18 +85,26 @@ public class GraphicRender {
     }
 
     private void initComponents(Board board) {
+        scale = new ScaleManager();
+
+        int tileSize        = scale.s(BASE_TILE_SIZE);
+        int frameSize       = scale.s(BASE_FRAME_SIZE);
+        int boardPanelSize  = 9 * tileSize + frameSize * 2;
+        int sidePanelW      = scale.s(BASE_SIDE_PANEL_W);
+        int sidePanelH      = scale.s(BASE_SIDE_PANEL_H);
+        int sidePanelMargin = scale.s(BASE_SIDE_PANEL_MARGIN);
+
         int screenW = Display.getWidth();
         int screenH = Display.getHeight();
 
-        int boardX = (screenW - BOARD_PANEL_SIZE) / 2;
-        int boardY = (screenH - BOARD_PANEL_SIZE) / 2;
-        int panelY = (screenH - SIDE_PANEL_H)     / 2;
-        int rightX = screenW - SIDE_PANEL_W - SIDE_PANEL_MARGIN;
+        int boardX = (screenW - boardPanelSize) / 2;
+        int boardY = (screenH - boardPanelSize) / 2;
+        int panelY = (screenH - sidePanelH)     / 2;
+        int rightX =  screenW - sidePanelW - sidePanelMargin;
 
-        boardPanel = new BoardPanel(boardX, boardY, BOARD_PANEL_SIZE, BOARD_PANEL_SIZE, board);
-        leftPanel = new LeftPanel(SIDE_PANEL_MARGIN, panelY, SIDE_PANEL_W, SIDE_PANEL_H,
-                					board, assets);
-        rightPanel = new RightPanel(rightX, panelY, SIDE_PANEL_W, SIDE_PANEL_H);
+        boardPanel = new BoardPanel(boardX, boardY, boardPanelSize, boardPanelSize, board, tileSize, frameSize);
+        leftPanel  = new LeftPanel(sidePanelMargin, panelY, sidePanelW, sidePanelH, board, assets, scale);
+        rightPanel = new RightPanel(rightX, panelY, sidePanelW, sidePanelH);
     }
 
     // -------------------------------------------------------------------------
@@ -117,15 +127,11 @@ public class GraphicRender {
     }
 
     private void drawBackground() {
-        int screenW = Display.getWidth();
-        int screenH = Display.getHeight();
-
-        for (int x = 0; x < screenW; x += BG_TILE_SIZE) {
-            for (int y = 0; y < screenH; y += BG_TILE_SIZE) {
+        int tileSize = scale.s(BASE_BG_TILE_SIZE);
+        for (int x = 0; x < Display.getWidth();  x += tileSize)
+            for (int y = 0; y < Display.getHeight(); y += tileSize)
                 SpriteUtil.drawSprite(batch, assets.spriteSheet,
-                        BG_COL, BG_ROW, x, y, BG_TILE_SIZE, BG_TILE_SIZE, 0f);
-            }
-        }
+                        BG_COL, BG_ROW, x, y, tileSize, tileSize, 0f);
     }
 
     private void drawPanels(Piece selectedPiece, Set<Coordinates> availableMoves) {

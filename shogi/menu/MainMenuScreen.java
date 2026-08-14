@@ -4,6 +4,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import mdesl.graphics.SpriteBatch;
 import view.gui.AssetManager;
+import view.gui.ScaleManager;
 
 public class MainMenuScreen extends Screen {
 
@@ -16,8 +17,11 @@ public class MainMenuScreen extends Screen {
     private final MenuButton btnSettings;
     private final MenuButton btnQuit;
 
-    public MainMenuScreen(SpriteBatch batch, AssetManager assets) {
-        super(batch, assets);
+    public MainMenuScreen(SpriteBatch batch, AssetManager assets, ScaleManager scale) {
+        super(batch, assets, scale);
+        int BTN_W = scale.s(400);
+        int BTN_H = scale.s(70);
+        int BTN_GAP = scale.s(20);
 
         int cx     = (Display.getWidth()  - BTN_W) / 2;
         int startY =  Display.getHeight() / 2 - 2 * (BTN_H + BTN_GAP);
@@ -41,11 +45,11 @@ public class MainMenuScreen extends Screen {
                     int ey = Display.getHeight() - Mouse.getEventY();
 
                     if (btnVsHuman.isHovered(ex, ey))
-                        return new NewGameScreen(batch, assets, GameConfig.Mode.VS_HUMAN);
+                        return new NewGameScreen(batch, assets, scale, GameConfig.Mode.VS_HUMAN);
                     if (btnVsAI.isHovered(ex, ey))
-                        return new NewGameScreen(batch, assets, GameConfig.Mode.VS_AI);
+                        return new NewGameScreen(batch, assets, scale, GameConfig.Mode.VS_AI);
                     if (btnSettings.isHovered(ex, ey))
-                        return new SettingsScreen(batch, assets);
+                        return new SettingsScreen(batch, assets, scale);
                     if (btnQuit.isHovered(ex, ey))
                         return null;
                 }

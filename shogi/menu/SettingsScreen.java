@@ -4,6 +4,7 @@ import org.lwjgl.input.Mouse;
 import org.lwjgl.opengl.Display;
 import mdesl.graphics.SpriteBatch;
 import view.gui.AssetManager;
+import view.gui.ScaleManager;
 
 public class SettingsScreen extends Screen {
 
@@ -12,8 +13,8 @@ public class SettingsScreen extends Screen {
 
     private final MenuButton btnBack;
 
-    public SettingsScreen(SpriteBatch batch, AssetManager assets) {
-        super(batch, assets);
+    public SettingsScreen(SpriteBatch batch, AssetManager assets, ScaleManager scale) {
+        super(batch, assets, scale);
         int cx = (Display.getWidth()  - BTN_W) / 2;
         int cy = Display.getHeight() / 2 + 100;
         btnBack = new MenuButton(cx, cy, BTN_W, BTN_H, "BACK");
@@ -31,7 +32,7 @@ public class SettingsScreen extends Screen {
                     int ex = Mouse.getEventX();
                     int ey = Display.getHeight() - Mouse.getEventY();
                     if (btnBack.isHovered(ex, ey))
-                        return new MainMenuScreen(batch, assets);
+                        return new MainMenuScreen(batch, assets, scale);
                 }
             }
 

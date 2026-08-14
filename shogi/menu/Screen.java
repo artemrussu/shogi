@@ -2,6 +2,7 @@ package menu;
 
 import mdesl.graphics.SpriteBatch;
 import view.gui.AssetManager;
+import view.gui.ScaleManager;
 import view.gui.SpriteUtil;
 
 import org.lwjgl.opengl.Display;
@@ -15,10 +16,12 @@ public abstract class Screen {
 
     protected final SpriteBatch  batch;
     protected final AssetManager assets;
+    protected final ScaleManager scale;
 
-    public Screen(SpriteBatch batch, AssetManager assets) {
+    public Screen(SpriteBatch batch, AssetManager assets, ScaleManager scale) {
         this.batch  = batch;
         this.assets = assets;
+        this.scale  = scale;
     }
 
     // returns next Screen, null = quit
