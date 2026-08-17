@@ -15,6 +15,7 @@ import core.PieceType;
 import menu.GameConfig;
 import model.Board;
 import model.piece.Piece;
+import sound.SoundManager;
 import view.gui.AssetManager;
 import view.gui.BoardPerspective;
 import view.gui.GraphicRender;
@@ -31,6 +32,8 @@ public class GraphicGame extends Game {
     
     private final BoardPerspective initialPerspective;
     private final boolean          rotatePerspective;
+    
+    private final SoundManager sound = new SoundManager();
 
     public GraphicGame(Board board, GameConfig config) {
         super(board);
@@ -52,6 +55,8 @@ public class GraphicGame extends Game {
             System.err.println("Critical error: Assets could not be loaded.");
             return;
         }
+        
+        sound.init();
 
         renderer.setPerspective(initialPerspective);
         
@@ -67,6 +72,7 @@ public class GraphicGame extends Game {
         }
 
         assets.dispose();
+        sound.shutdown();
         Display.destroy();
     }
 
@@ -113,6 +119,8 @@ public class GraphicGame extends Game {
         Boolean choice = renderer.getPromotionDialogChoice(mouseX, mouseY);
         if (choice == null) return;
 
+        if (choice) sound.playPromote();
+
         Move finalMove = new Move(pendingMove.from, pendingMove.to, choice);
         pendingMove = null;
         renderer.hidePromotionDialog();
@@ -133,9 +141,8 @@ public class GraphicGame extends Game {
         Piece pieceToMove = board.getPiece(selectedSquare);
 
         if (!availableMoves.contains(clickedCoords)) {
-        	
-            if (!board.isSquareEmpty(clickedCoords) && board.getPiece(clickedCoords).
-            				getColor() == currentTurn) {
+            if (!board.isSquareEmpty(clickedCoords) &&
+                    board.getPiece(clickedCoords).getColor() == currentTurn) {
                 selectedSquare = clickedCoords;
                 availableMoves = board.getPiece(clickedCoords).getAvailableMoveSquares(board);
             } else {
@@ -148,23 +155,27 @@ public class GraphicGame extends Game {
         Move move = new Move(selectedSquare, clickedCoords);
 
         if (InputCoordinates.validateIfKingInCheckAfterMove(board, currentTurn, move)) {
-        		renderer.showMessage("Invalid move: king is under attack!");
+            renderer.showMessage("Invalid move: king is under attack!");
             selectedSquare = null;
             availableMoves = Set.of();
             return;
         }
 
         if (pieceToMove.mustPromote(clickedCoords)) {
+            sound.playCapture(!board.isSquareEmpty(clickedCoords));
+            sound.playPromote();
             executeMove(new Move(move.from, move.to, true));
             return;
         }
 
         if (pieceToMove.canPromote(clickedCoords)) {
+            sound.playCapture(!board.isSquareEmpty(clickedCoords));
             pendingMove = move;
             renderer.showPromotionDialog();
             return;
         }
 
+        sound.playCapture(!board.isSquareEmpty(clickedCoords));
         executeMove(move);
     }
 
@@ -172,23 +183,28 @@ public class GraphicGame extends Game {
         DropMove drop = new DropMove(selectedHandPiece, currentTurn, target);
 
         if (!DropValidator.isValidDrop(drop, board)) {
-        		renderer.showMessage("Invalid drop!");
+            renderer.showMessage("Invalid drop!");
             selectedHandPiece = null;
             return;
         }
 
+        sound.playDrop();
         executeMove(drop);
         selectedHandPiece = null;
     }
 
     @Override
     protected void executeMove(Move move) {
-        super.executeMove(move);      // currentTurn switches here
+        super.executeMove(move);
         availableMoves = Set.of();
         selectedSquare = null;
 
         if (rotatePerspective) {
-            renderer.setPerspective(new BoardPerspective(currentTurn)); // next player at bottom
+            renderer.setPerspective(new BoardPerspective(currentTurn));
+        }
+
+        if (currentGameState != GameState.ONGOING) {
+            sound.playGameEnd();
         }
     }
 }
